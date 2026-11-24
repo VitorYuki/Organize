@@ -32,3 +32,11 @@ Desktop.ini
 
 # Editor
 .vscode/
+
+# Projeto local e evidências temporárias
+.local/
+.ruff_cache/
+test-results/
+playwright-report/
+graphify-out/
+*.tsbuildinfo
