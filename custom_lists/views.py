@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import transaction
 from django.db.models import Max
 from django.shortcuts import get_object_or_404
@@ -9,7 +10,7 @@ from rest_framework.views import APIView
 
 from config.domain import PersonalViewSet
 
-from .models import CustomList
+from .models import CustomList, ListItem
 from .serializers import ItemSerializer, ListSerializer, ReorderSerializer
 
 
@@ -36,6 +37,12 @@ class ItemsView(APIView):
     @transaction.atomic
     def post(self, request, list_id):
         collection = self.collection(request, list_id, lock=True)
+        if (
+            request.user.is_guest
+            and ListItem.objects.filter(collection__owner=request.user).count()
+            >= settings.DEMO_ITEM_LIMIT
+        ):
+            raise ValidationError("Limite de itens da demonstração atingido.")
         serializer = ItemSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         last = collection.items.aggregate(last=Max("position"))["last"]

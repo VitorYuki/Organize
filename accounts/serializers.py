@@ -11,9 +11,26 @@ class ProfileSerializer(serializers.ModelSerializer):
         model = User
         fields = ["id", "name", "email", "theme"]
         read_only_fields = ["id"]
+        extra_kwargs = {"email": {"required": True, "allow_null": False}}
 
     def validate_email(self, value):
         return value.strip().lower()
+
+
+class GuestProfileSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(source="first_name", read_only=True)
+
+    class Meta:
+        model = User
+        fields = ["id", "name", "theme", "is_guest"]
+        read_only_fields = ["id", "is_guest"]
+
+    def to_internal_value(self, data):
+        if hasattr(data, "keys") and set(data) - {"theme"}:
+            raise serializers.ValidationError(
+                {"detail": "Visitantes podem alterar apenas o tema."}
+            )
+        return super().to_internal_value(data)
 
 
 class RegisterSerializer(ProfileSerializer):

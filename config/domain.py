@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.db import models, transaction
 from rest_framework import filters, permissions, viewsets
+from rest_framework.exceptions import ValidationError
 
 
 class TimestampedModel(models.Model):
@@ -33,7 +34,13 @@ class PersonalViewSet(viewsets.ModelViewSet):
         return queryset
 
     def perform_create(self, serializer):
-        serializer.save(owner=self.request.user)
+        owner = self.request.user
+        if (
+            owner.is_guest
+            and self.queryset.model.objects.filter(owner=owner).count() >= settings.DEMO_RECORD_LIMIT
+        ):
+            raise ValidationError("Limite de registros da demonstração atingido.")
+        serializer.save(owner=owner)
 
     @transaction.atomic
     def update(self, request, *args, **kwargs):

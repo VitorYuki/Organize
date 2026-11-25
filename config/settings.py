@@ -32,6 +32,7 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "accounts.demo.guest_session",
     "config.middleware.expected_account",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
@@ -69,11 +70,15 @@ SECURE_HSTS_SECONDS = 0 if DEBUG else 31536000
 SECURE_HSTS_INCLUDE_SUBDOMAINS = SECURE_HSTS_PRELOAD = not DEBUG
 CSRF_FAILURE_VIEW = "config.middleware.csrf_failure"
 DATA_UPLOAD_MAX_MEMORY_SIZE = 512 * 1024
+ORGANIZE_DEMO_ENABLED = os.getenv("ORGANIZE_DEMO_ENABLED", "0") == "1"
+DEMO_MAX_ACCOUNTS = 250
+DEMO_RECORD_LIMIT = 40
+DEMO_ITEM_LIMIT = 100
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": ["rest_framework.authentication.SessionAuthentication"],
     "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.IsAuthenticated"],
     "DEFAULT_RENDERER_CLASSES": ["rest_framework.renderers.JSONRenderer"],
     "DEFAULT_PARSER_CLASSES": ["config.parsers.LimitedJSONParser"],
-    "DEFAULT_THROTTLE_RATES": {"auth": "30/min"},
+    "DEFAULT_THROTTLE_RATES": {"auth": "30/min", "demo": "10/hour"},
     "NUM_PROXIES": 0,
 }

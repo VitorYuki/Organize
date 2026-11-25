@@ -23,7 +23,8 @@ class UserManager(BaseUserManager):
 
 class User(AbstractUser):
     username = None
-    email = models.EmailField(unique=True)
+    email = models.EmailField(unique=True, null=True)
+    guest_expires_at = models.DateTimeField(null=True, editable=False, db_index=True)
     theme = models.CharField(
         max_length=8,
         default="system",
@@ -33,5 +34,23 @@ class User(AbstractUser):
     REQUIRED_FIELDS = []
     objects = UserManager()
 
+    @property
+    def is_guest(self):
+        return self.guest_expires_at is not None
+
     class Meta:
-        constraints = [models.UniqueConstraint(Lower("email"), name="unique_account_email_ci")]
+        constraints = [
+            models.UniqueConstraint(Lower("email"), name="unique_account_email_ci"),
+            models.CheckConstraint(
+                condition=(
+                    models.Q(guest_expires_at__isnull=True, email__isnull=False)
+                    | models.Q(
+                        guest_expires_at__isnull=False,
+                        email__isnull=True,
+                        is_staff=False,
+                        is_superuser=False,
+                    )
+                ),
+                name="account_guest_identity",
+            ),
+        ]

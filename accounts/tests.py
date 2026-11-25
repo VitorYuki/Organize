@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.core.cache import cache
 from rest_framework.test import APIClient, APITestCase
 
@@ -28,7 +29,9 @@ class SessionTests(APITestCase):
 
     def test_csrf_and_private_cache(self):
         response = self.client.get(self.base + "auth/session/")
-        self.assertEqual(response.data, {"user": None})
+        self.assertEqual(
+            response.data, {"user": None, "demo_enabled": settings.ORGANIZE_DEMO_ENABLED}
+        )
         self.assertIn("no-store", response["Cache-Control"])
         for path in ("auth/login/", "auth/register/"):
             self.assertEqual(
