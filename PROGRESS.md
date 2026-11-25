@@ -28,3 +28,10 @@ O único commit versionava o .gitignore. A estrutura Django em disco ainda não 
 Instalação pelo menu do navegador, VoiceOver ou TalkBack, teclado virtual e áreas seguras precisam de aparelhos físicos. Os perfis automatizados usam Chromium, WebKit e Firefox com dimensões e parâmetros de emulação.
 
 Os comandos de execução estão no [README](README.md), e a matriz e as evidências estão descritas no [guia de validação](qa/README.md).
+
+## Redesign mobile-first em 24/11/2026
+
+- A interface passou a usar fontes do sistema, superfícies neutras, verde como destaque e listas com separadores. A Home agrupa o progresso e a criação rápida. O calendário apresenta mês e agenda lado a lado no desktop. [Apple Human Interface Guidelines](https://developer.apple.com/design/human-interface-guidelines/color) · [Organização das listas no Things](https://culturedcode.com/things/support/articles/4001304/)
+- A barra móvel mantém as quatro abas, usa uma superfície sólida quando o navegador não oferece desfoque e respeita as áreas seguras. Os formulários usam controles nativos e diálogos com foco restaurado ao fechar. [Diretrizes da Apple para barras de abas](https://developer.apple.com/design/human-interface-guidelines/tab-bars)
+- A página offline recebeu a nova paleta. O aviso de atualização passou a exigir uma versão em espera além da versão ativa, para que a primeira instalação não exiba um aviso indevido.
+- A compilação de produção, o lint, os quatro testes unitários e os 36 cenários Playwright passaram. A revisão incluiu capturas em claro e escuro, retrato e paisagem, verificações de contraste com axe e os alvos de 44 px da navegação e do calendário a 320 px. A validação em aparelhos físicos continua pendente.
