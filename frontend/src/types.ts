@@ -1,5 +1,7 @@
 export type Theme = "system" | "light" | "dark";
-export type User = { id: number; name: string; email: string; theme: Theme };
+export type User = { id: number; name: string; theme: Theme } & (
+  { is_guest: true; email?: never } | { is_guest?: false; email: string }
+);
 export type Page =
   "home" | "hoje" | "calendario" | "ajustes" | "notas" | "listas";
 export type RecordBase = {

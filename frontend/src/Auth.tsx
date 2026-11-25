@@ -8,33 +8,57 @@ export function Auth({
   toggleTheme,
   dark,
   notice,
+  demoEnabled,
+  guestId,
+  onBack,
 }: {
   onAuth: (user: User) => void;
   toggleTheme: () => void;
   dark: boolean;
   notice: string;
+  demoEnabled: boolean;
+  guestId?: number;
+  onBack: () => void;
 }) {
-  const [register, setRegister] = useState(false),
+  const fromDemo = guestId !== undefined;
+  const [register, setRegister] = useState(fromDemo),
     [visible, setVisible] = useState(false),
-    [busy, setBusy] = useState(false),
-    [error, setError] = useState("");
+    [pending, setPending] = useState<"credentials" | "demo" | null>(null),
+    [error, setError] = useState(""),
+    [demoError, setDemoError] = useState("");
   async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (busy) return;
+    if (pending) return;
     const f = new FormData(e.currentTarget);
-    setBusy(true);
+    setPending("credentials");
     setError("");
+    setDemoError("");
     try {
       const { user } = await api<{ user: User }>(
         "auth/" + (register ? "register/" : "login/"),
         "POST",
         Object.fromEntries(f),
+        guestId,
       );
       onAuth(user);
     } catch (err) {
       setError(message(err));
     } finally {
-      setBusy(false);
+      setPending(null);
+    }
+  }
+  async function startDemo() {
+    if (pending) return;
+    setPending("demo");
+    setError("");
+    setDemoError("");
+    try {
+      const { user } = await api<{ user: User }>("auth/demo/", "POST");
+      onAuth(user);
+    } catch (err) {
+      setDemoError(message(err));
+    } finally {
+      setPending(null);
     }
   }
   return (
@@ -52,9 +76,11 @@ export function Auth({
       <div className="auth-form">
         <h1>{register ? "Crie sua conta" : "Entre no Organize"}</h1>
         <p className="intro">
-          {register
-            ? "Organize tarefas, eventos, anotações e listas em um espaço pessoal."
-            : "Acesse suas tarefas, eventos, anotações e listas."}
+          {fromDemo
+            ? "Sua conta começa vazia. Os dados temporários serão apagados ao concluir o cadastro."
+            : register
+              ? "Organize tarefas, eventos, anotações e listas em um espaço pessoal."
+              : "Acesse suas tarefas, eventos, anotações e listas."}
         </p>
         <form
           key={register ? "register" : "login"}
@@ -105,22 +131,57 @@ export function Auth({
             </button>
           </div>
           <Alert text={error || notice} />
-          <button type="submit" className="primary auth-submit" disabled={busy}>
-            {busy ? "Aguarde…" : register ? "Criar conta" : "Entrar"}
+          <button
+            type="submit"
+            className="primary auth-submit"
+            disabled={pending !== null}
+          >
+            {pending === "credentials"
+              ? "Aguarde…"
+              : register
+                ? "Criar conta"
+                : "Entrar"}
           </button>
         </form>
         <p className="auth-switch">
-          {register ? "Já tem uma conta?" : "Ainda não tem uma conta?"}{" "}
+          {!fromDemo &&
+            (register ? "Já tem uma conta? " : "Ainda não tem uma conta? ")}
           <button
+            disabled={pending !== null}
             onClick={() => {
+              if (fromDemo) return onBack();
               setRegister(!register);
               setError("");
+              setDemoError("");
               setVisible(false);
             }}
           >
-            {register ? "Fazer login" : "Criar conta"}
+            {fromDemo
+              ? "Voltar à demonstração"
+              : register
+                ? "Fazer login"
+                : "Criar conta"}
           </button>
         </p>
+        {!register && demoEnabled && (
+          <div className="auth-demo">
+            <button
+              type="button"
+              className="secondary"
+              aria-describedby="demo-description"
+              disabled={pending !== null}
+              onClick={() => void startDemo()}
+            >
+              {pending === "demo"
+                ? "Abrindo demonstração…"
+                : "Experimentar sem conta"}
+            </button>
+            <p id="demo-description">
+              Explore o Organize sem precisar criar uma conta.
+            </p>
+            <Alert text={demoError} />
+          </div>
+        )}
       </div>
     </main>
   );

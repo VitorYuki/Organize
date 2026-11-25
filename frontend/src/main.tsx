@@ -7,6 +7,7 @@ import { Auth } from "./Auth";
 import { Workspace } from "./Workspace";
 import { Logo } from "./ui";
 import type { Theme, User } from "./types";
+type Session = { user: User | null; demo_enabled: boolean };
 function storedTheme(): Theme {
   try {
     const v = localStorage.getItem("organize-theme");
@@ -17,6 +18,8 @@ function storedTheme(): Theme {
 }
 function App() {
   const [user, setUser] = useState<User | null>(null),
+    [demoEnabled, setDemoEnabled] = useState(false),
+    [creatingAccount, setCreatingAccount] = useState(false),
     [loading, setLoading] = useState(true),
     [failure, setFailure] = useState(""),
     [notice, setNotice] = useState(""),
@@ -35,7 +38,8 @@ function App() {
   const session = useCallback(async () => {
     setFailure("");
     try {
-      const { user: u } = await api<{ user: User | null }>("auth/session/");
+      const { user: u, demo_enabled } = await api<Session>("auth/session/");
+      setDemoEnabled(demo_enabled);
       if (u) updateUser(u);
       else setUser(null);
     } catch (err) {
@@ -48,6 +52,7 @@ function App() {
     void session();
   }, [session]);
   const userId = user?.id;
+  const isGuest = user?.is_guest === true;
   useEffect(() => {
     if (userId === undefined) return;
     let active = true;
@@ -61,16 +66,22 @@ function App() {
         return;
       checking = true;
       try {
-        const { user: current } = await api<{ user: User | null }>(
-          "auth/session/",
-        );
-        if (!active || current?.id === userId) return;
+        const { user: current, demo_enabled } =
+          await api<Session>("auth/session/");
+        if (!active) return;
+        setDemoEnabled(demo_enabled);
+        if (current?.id === userId) return;
+        setCreatingAccount(false);
         setToast("");
         location.hash = "home";
         if (current) updateUser(current);
         else {
           setUser(null);
-          setNotice("Sua sessão terminou. Entre novamente.");
+          setNotice(
+            isGuest
+              ? "Sua demonstração terminou. Você pode iniciar outra."
+              : "Sua sessão terminou. Entre novamente.",
+          );
         }
       } catch {
         /* The workspace keeps the request error visible if verification fails. */
@@ -83,7 +94,7 @@ function App() {
       active = false;
       window.removeEventListener("organize:session-check", check);
     };
-  }, [userId, updateUser]);
+  }, [userId, isGuest, updateUser]);
   useEffect(() => {
     const media = matchMedia("(prefers-color-scheme: dark)");
     function apply() {
@@ -155,6 +166,8 @@ function App() {
   const login = (u: User) => {
     location.hash = "home";
     setNotice("");
+    setCreatingAccount(false);
+    setToast("");
     updateUser(u);
   };
   async function logout() {
@@ -204,19 +217,24 @@ function App() {
             <p role="status">Abrindo seu espaço…</p>
           )}
         </main>
-      ) : user ? (
+      ) : user && !creatingAccount ? (
         <Workspace
           key={user.id}
           user={user}
           updateUser={updateUser}
           logout={logout}
           notify={notify}
+          createAccount={() => setCreatingAccount(true)}
         />
       ) : (
         <Auth
+          key={creatingAccount ? user?.id : "login"}
           onAuth={login}
           dark={dark}
           notice={notice}
+          demoEnabled={demoEnabled}
+          guestId={creatingAccount ? user?.id : undefined}
+          onBack={() => setCreatingAccount(false)}
           toggleTheme={() => setTheme(dark ? "light" : "dark")}
         />
       )}

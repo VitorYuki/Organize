@@ -357,6 +357,33 @@ input::-webkit-date-and-time-value {
 .auth-switch button:hover {
   text-decoration: underline;
 }
+.auth-demo {
+  display: grid;
+  gap: 0.5rem;
+  padding-top: 1rem;
+  margin-top: 0.35rem;
+  border-top: 1px solid var(--line);
+  text-align: center;
+}
+.auth-demo > p,
+.demo-profile p {
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+.demo-profile {
+  display: grid;
+  gap: 0.825rem;
+}
+.demo-identity,
+.demo-profile-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+.demo-profile-actions button {
+  text-align: start;
+}
 .password-field,
 .input-with-icon {
   position: relative;

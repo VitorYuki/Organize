@@ -6,6 +6,7 @@ import {
   LogOut,
   MonitorSmartphone,
   Moon,
+  RotateCcw,
   Sun,
 } from "lucide-react";
 import { api, message } from "./api";
@@ -16,12 +17,24 @@ type Props = {
   update: (u: User) => void;
   logout: () => Promise<void>;
   notify: (t: string) => void;
+  createAccount: () => void;
+  resetDemo: () => Promise<void>;
 };
-export function Settings({ user, update, logout, notify }: Props) {
+export function Settings({
+  user,
+  update,
+  logout,
+  notify,
+  createAccount,
+  resetDemo,
+}: Props) {
   const [error, setError] = useState(""),
     [busy, setBusy] = useState(false),
     [password, setPassword] = useState(false),
-    [confirm, setConfirm] = useState(false);
+    [confirm, setConfirm] = useState<"logout" | "reset" | null>(null);
+  const exitLabel = user.is_guest ? "Sair da demonstração" : "Sair da conta";
+  const restore = confirm === "reset";
+  const confirmLabel = restore ? "Restaurar dados" : exitLabel;
   async function act(action: () => Promise<void>) {
     if (busy) return;
     setBusy(true);
@@ -34,7 +47,7 @@ export function Settings({ user, update, logout, notify }: Props) {
       setBusy(false);
     }
   }
-  async function profile(p: Partial<User>) {
+  async function profile(p: { theme?: Theme; name?: string; email?: string }) {
     const { user: result } = await api<{ user: User }>(
       "profile/",
       "PATCH",
@@ -70,49 +83,86 @@ export function Settings({ user, update, logout, notify }: Props) {
     <>
       <Header title="Ajustes" />
       {!password && !confirm && <Alert text={error} />}
-      <section className="panel">
-        <div className="section-head">
-          <h2>Meu perfil</h2>
-        </div>
-        <form className="form-stack" onSubmit={submit}>
-          <div className="field-grid">
-            <Field label="Nome">
-              <input
-                required
-                name="name"
-                defaultValue={user.name}
-                maxLength={150}
-                autoComplete="name"
-              />
-            </Field>
-            <Field label="E-mail">
-              <input
-                required
-                type="email"
-                name="email"
-                defaultValue={user.email}
-                autoComplete="email"
-              />
-            </Field>
+      {user.is_guest ? (
+        <section className="panel demo-profile" aria-labelledby="guest-profile">
+          <div className="demo-identity">
+            <span className="avatar" aria-hidden="true">
+              V
+            </span>
+            <div>
+              <h2 id="guest-profile">Visitante</h2>
+              <p>Modo demonstração</p>
+            </div>
           </div>
-          <div className="profile-actions">
+          <p>
+            Seus dados são temporários e serão apagados ao sair ou quando a
+            sessão expirar.
+          </p>
+          <div className="demo-profile-actions">
             <button
-              type="button"
+              className="secondary"
+              disabled={busy}
+              onClick={createAccount}
+            >
+              Criar conta pessoal
+            </button>
+            <button
               className="quiet-btn"
+              disabled={busy}
               onClick={() => {
                 setError("");
-                setPassword(true);
+                setConfirm("reset");
               }}
             >
-              <KeyRound size={17} />
-              Alterar senha
-            </button>
-            <button disabled={busy} className="secondary">
-              Salvar perfil
+              <RotateCcw size={17} /> Restaurar dados de demonstração
             </button>
           </div>
-        </form>
-      </section>
+        </section>
+      ) : (
+        <section className="panel">
+          <div className="section-head">
+            <h2>Meu perfil</h2>
+          </div>
+          <form className="form-stack" onSubmit={submit}>
+            <div className="field-grid">
+              <Field label="Nome">
+                <input
+                  required
+                  name="name"
+                  defaultValue={user.name}
+                  maxLength={150}
+                  autoComplete="name"
+                />
+              </Field>
+              <Field label="E-mail">
+                <input
+                  required
+                  type="email"
+                  name="email"
+                  defaultValue={user.email}
+                  autoComplete="email"
+                />
+              </Field>
+            </div>
+            <div className="profile-actions">
+              <button
+                type="button"
+                className="quiet-btn"
+                onClick={() => {
+                  setError("");
+                  setPassword(true);
+                }}
+              >
+                <KeyRound size={17} />
+                Alterar senha
+              </button>
+              <button disabled={busy} className="secondary">
+                Salvar perfil
+              </button>
+            </div>
+          </form>
+        </section>
+      )}
       <section className="panel">
         <div className="section-head">
           <h2>Aparência</h2>
@@ -182,36 +232,51 @@ export function Settings({ user, update, logout, notify }: Props) {
         className="logout"
         onClick={() => {
           setError("");
-          setConfirm(true);
+          setConfirm("logout");
         }}
       >
         <LogOut size={18} />
-        Sair da conta
+        {exitLabel}
       </button>
       {confirm && (
         <Modal
-          title="Sair da conta?"
+          title={confirmLabel + "?"}
           close={() => {
-            if (!busy) setConfirm(false);
+            if (!busy) setConfirm(null);
           }}
         >
           <div className="form-stack">
-            <p>Você poderá entrar novamente com seu e-mail e senha.</p>
+            <p>
+              {restore
+                ? "As alterações desta sessão serão apagadas e os exemplos serão recriados. Seu tema será mantido."
+                : user.is_guest
+                  ? "Os dados temporários desta sessão serão apagados."
+                  : "Você poderá entrar novamente com seu e-mail e senha."}
+            </p>
             <Alert text={error} />
             <div className="action-row">
               <button
                 className="secondary"
                 disabled={busy}
-                onClick={() => setConfirm(false)}
+                onClick={() => setConfirm(null)}
               >
                 Cancelar
               </button>
               <button
                 className="danger"
                 disabled={busy}
-                onClick={() => void act(logout)}
+                onClick={() =>
+                  void act(async () => {
+                    if (restore) {
+                      await resetDemo();
+                      setConfirm(null);
+                    } else {
+                      await logout();
+                    }
+                  })
+                }
               >
-                Sair da conta
+                {confirmLabel}
               </button>
             </div>
           </div>

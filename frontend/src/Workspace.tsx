@@ -66,11 +66,13 @@ export function Workspace({
   updateUser,
   logout,
   notify,
+  createAccount,
 }: {
   user: User;
   updateUser: (u: User) => void;
   logout: () => Promise<void>;
   notify: (t: string) => void;
+  createAccount: () => void;
 }) {
   const [route, setRoute] = useState(getRoute),
     [data, setData] = useState<Records | null>(null),
@@ -96,6 +98,12 @@ export function Workspace({
       if (alive.current && version.current === current) setError(message(err));
     }
   }, [user.id]);
+  async function resetDemo() {
+    await api("auth/demo/reset/", "POST", undefined, user.id);
+    setData(null);
+    await load();
+    notify("Dados da demonstração restaurados.");
+  }
   useEffect(() => {
     alive.current = true;
     void load();
@@ -284,6 +292,8 @@ export function Workspace({
               update={updateUser}
               notify={notify}
               logout={logout}
+              createAccount={createAccount}
+              resetDemo={resetDemo}
             />
           ) : !display ? (
             !error && (
