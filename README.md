@@ -33,6 +33,26 @@ npm.cmd run preview
 
 Em produção, sirva `frontend/dist` por HTTPS e encaminhe `/api/` para o Django na mesma origem. Configure `DJANGO_SECRET_KEY`, `DJANGO_ALLOWED_HOSTS` e as variáveis `PG*` no ambiente do backend, com `DJANGO_DEBUG=0`. Se o TLS terminar no proxy, configure o Django para reconhecer o HTTPS encaminhado por esse proxy confiável.
 
+## Modo demonstração
+
+Defina `ORGANIZE_DEMO_ENABLED=1` no ambiente do Django ou no `.env` e reinicie o backend. O modo vem desabilitado por padrão. No Windows, você também pode ativá-lo só para uma execução:
+
+```powershell
+$env:ORGANIZE_DEMO_ENABLED = '1'
+.venv\Scripts\python.exe manage.py migrate
+.venv\Scripts\python.exe manage.py runserver 127.0.0.1:8000
+```
+
+Na tela de login, **Experimentar sem conta** abre a Home em uma sessão exclusiva como **Visitante**. Os exemplos de tarefas, eventos, anotações e listas usam datas relativas ao dia atual em São Paulo. As alterações e o tema persistem ao recarregar a página durante as 24 horas da sessão.
+
+Em **Ajustes**, restaurar recria os exemplos do visitante e mantém o tema. Sair apaga os dados temporários. Criar uma conta pessoal abre o cadastro e, ao concluir, apaga a demonstração e inicia um espaço vazio.
+
+O PostgreSQL limita o total a 250 contas temporárias, 40 registros de cada tipo e 100 itens de lista por visitante. O Django também limita a entrada a 10 tentativas por hora por IP visto pela API, no cache do processo. Ao abrir uma demonstração, o Django remove um lote de contas vencidas. Em uma implantação, agende o comando abaixo para rodar a cada hora, inclusive quando o modo estiver desativado. Ele remove visitantes vencidos, seus registros e sessões Django já expiradas.
+
+```powershell
+.venv\Scripts\python.exe manage.py cleanup_demo
+```
+
 ## Verificação
 
 Na raiz do projeto:
