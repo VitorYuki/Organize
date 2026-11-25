@@ -25,9 +25,9 @@ export function Logo() {
   return (
     <span className="brand">
       <span className="brand-mark" aria-hidden="true">
-        <Check size={24} strokeWidth={3.3} />
+        <Check size={19} strokeWidth={2.4} />
       </span>
-      Organize<span className="brand-period">.</span>
+      Organize
     </span>
   );
 }
@@ -116,12 +116,12 @@ export function Empty({
   );
 }
 export function Header({
-  eyebrow,
+  subtitle,
   title,
   action,
   back,
 }: {
-  eyebrow: string;
+  subtitle?: string;
   title: string;
   action?: ReactNode;
   back?: () => void;
@@ -134,7 +134,7 @@ export function Header({
             <ArrowLeft size={16} /> Voltar
           </button>
         )}
-        <div className="overline">{eyebrow}</div>
+        {subtitle && <p className="page-date">{subtitle}</p>}
         <h1>{title}</h1>
       </div>
       {action}

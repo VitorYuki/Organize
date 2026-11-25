@@ -19,8 +19,12 @@ import { message } from "./api";
 export function NoteCard({ note, open }: { note: Note; open: () => void }) {
   return (
     <button className="note-card" onClick={open}>
+      <FileText size={19} aria-hidden="true" />
+      <span className="note-copy">
+        <strong>{note.title}</strong>
+        {note.content && <span className="note-preview">{note.content}</span>}
+      </span>
       <span className="note-meta">
-        <FileText size={17} />
         {note.pinned ? (
           <span>
             <Pin size={13} /> Fixada
@@ -29,8 +33,6 @@ export function NoteCard({ note, open }: { note: Note; open: () => void }) {
           <small>{labelDate(dateKey(note.updated_at))}</small>
         )}
       </span>
-      <strong>{note.title}</strong>
-      {note.content && <p>{note.content}</p>}
     </button>
   );
 }
@@ -53,7 +55,6 @@ export function Notes({
     <>
       <Header
         title="Anotações"
-        eyebrow="Biblioteca pessoal"
         back={back}
         action={
           <button className="primary" onClick={() => open({ kind: "notes" })}>
@@ -73,7 +74,7 @@ export function Notes({
         />
       </label>
       {filtered.length ? (
-        <div className="card-grid">
+        <div className="note-list panel">
           {filtered.map((n) => (
             <NoteCard
               note={n}
@@ -86,12 +87,8 @@ export function Notes({
         <div className="panel">
           <Empty
             icon={FileText}
-            title={query ? "Nenhum resultado" : "Suas anotações começam aqui"}
-            body={
-              query
-                ? "Tente outra palavra."
-                : "Guarde uma ideia ou registre algo importante."
-            }
+            title={query ? "Nenhum resultado" : "Nenhuma anotação"}
+            body={query ? "Tente outro termo de busca." : undefined}
           />
         </div>
       )}
@@ -137,7 +134,6 @@ export function Lists({
     <>
       <Header
         title="Listas"
-        eyebrow="Biblioteca pessoal"
         back={back}
         action={
           <button className="primary" onClick={() => open({ kind: "lists" })}>
@@ -213,7 +209,6 @@ export function ListDetail({
   return (
     <>
       <Header
-        eyebrow="Lista personalizada"
         title={list.title}
         back={back}
         action={

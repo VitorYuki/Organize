@@ -71,7 +71,6 @@ export function Calendar({
     <>
       <Header
         title="Calendário"
-        eyebrow="Agenda pessoal"
         action={
           <button
             className="primary"
@@ -82,106 +81,109 @@ export function Calendar({
           </button>
         }
       />
-      <section className="panel month-panel">
-        <div className="section-head">
-          <h2 className="capitalize">
-            {labelDate(month, { month: "long", year: "numeric" })}
-          </h2>
-          <div className="inline-actions">
-            <button
-              className="icon-btn"
-              aria-label="Mês anterior"
-              onClick={() => changeMonth(-1)}
-            >
-              <ChevronLeft />
-            </button>
-            <button
-              className="quiet-btn"
-              onClick={() => {
-                setMonth(monthStart(today, 0));
-                setSelected(today);
-              }}
-            >
-              Hoje
-            </button>
-            <button
-              className="icon-btn"
-              aria-label="Próximo mês"
-              onClick={() => changeMonth(1)}
-            >
-              <ChevronRight />
-            </button>
-          </div>
-        </div>
-        <div className="month-grid">
-          {["D", "S", "T", "Q", "Q", "S", "S"].map((l, i) => (
-            <span aria-hidden="true" className="weekday" key={"w" + i}>
-              {l}
-            </span>
-          ))}
-          {Array.from({ length: offset }, (_, i) => (
-            <span key={"offset" + i} />
-          ))}
-          {Array.from({ length: days }, (_, i) => {
-            const key = shiftDate(month, i),
-              has =
-                data.events.some((e) => onDay(e, key)) ||
-                data.tasks.some((t) => t.due_date === key);
-            return (
+      <div className="calendar-layout">
+        <section className="panel month-panel">
+          <div className="section-head">
+            <h2 className="calendar-date">
+              {labelDate(month, { month: "long", year: "numeric" })}
+            </h2>
+            <div className="inline-actions">
               <button
-                key={key}
-                className={"month-day " + (key === today ? "current" : "")}
-                aria-current={key === today ? "date" : undefined}
-                aria-pressed={key === selected}
-                aria-label={
-                  labelDate(key, {
-                    day: "numeric",
-                    month: "long",
-                    year: "numeric",
-                  }) + (has ? ", com atividades" : "")
-                }
-                onClick={() => setSelected(key)}
+                className="icon-btn"
+                aria-label="Mês anterior"
+                onClick={() => changeMonth(-1)}
               >
-                {i + 1}
-                {has && <i />}
+                <ChevronLeft />
               </button>
-            );
-          })}
-        </div>
-      </section>
-      <section className="panel">
-        <div className="section-head">
-          <h2 className="capitalize">
-            {labelDate(selected, {
-              weekday: "long",
-              day: "numeric",
-              month: "long",
+              <button
+                className="quiet-btn"
+                onClick={() => {
+                  setMonth(monthStart(today, 0));
+                  setSelected(today);
+                }}
+              >
+                Hoje
+              </button>
+              <button
+                className="icon-btn"
+                aria-label="Próximo mês"
+                onClick={() => changeMonth(1)}
+              >
+                <ChevronRight />
+              </button>
+            </div>
+          </div>
+          <div className="month-grid">
+            {["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"].map((l) => (
+              <span aria-hidden="true" className="weekday" key={l}>
+                {l}
+              </span>
+            ))}
+            {Array.from({ length: offset }, (_, i) => (
+              <span key={"offset" + i} />
+            ))}
+            {Array.from({ length: days }, (_, i) => {
+              const key = shiftDate(month, i),
+                has =
+                  data.events.some((e) => onDay(e, key)) ||
+                  data.tasks.some((t) => t.due_date === key);
+              return (
+                <button
+                  key={key}
+                  className={"month-day " + (key === today ? "current" : "")}
+                  aria-current={key === today ? "date" : undefined}
+                  aria-pressed={key === selected}
+                  aria-label={
+                    labelDate(key, {
+                      weekday: "long",
+                      day: "numeric",
+                      month: "long",
+                      year: "numeric",
+                    }) + (has ? ", com atividades" : "")
+                  }
+                  onClick={() => setSelected(key)}
+                >
+                  {i + 1}
+                  {has && <i />}
+                </button>
+              );
             })}
-          </h2>
-        </div>
-        {events.map((e) => (
-          <EventRow
-            event={e}
-            key={e.id}
-            open={() => open({ kind: "events", record: e })}
-          />
-        ))}
-        {tasks.map((t) => (
-          <TaskRow
-            key={t.id}
-            task={t}
-            edit={() => open({ kind: "tasks", record: t })}
-            toggle={() => toggle(t)}
-          />
-        ))}
-        {!tasks.length && !events.length && (
-          <Empty
-            icon={CalendarDays}
-            title="Agenda livre neste dia"
-            body="Adicione um evento para reservar um horário."
-          />
-        )}
-      </section>
+          </div>
+        </section>
+        <section className="panel">
+          <div className="section-head">
+            <h2 className="calendar-date">
+              {labelDate(selected, {
+                weekday: "long",
+                day: "numeric",
+                month: "long",
+              })}
+            </h2>
+          </div>
+          {events.map((e) => (
+            <EventRow
+              event={e}
+              key={e.id}
+              open={() => open({ kind: "events", record: e })}
+            />
+          ))}
+          {tasks.map((t) => (
+            <TaskRow
+              key={t.id}
+              task={t}
+              edit={() => open({ kind: "tasks", record: t })}
+              toggle={() => toggle(t)}
+            />
+          ))}
+          {!tasks.length && !events.length && (
+            <Empty
+              icon={CalendarDays}
+              title="Agenda livre neste dia"
+              body="Adicione um evento para reservar um horário."
+            />
+          )}
+        </section>
+      </div>
     </>
   );
 }

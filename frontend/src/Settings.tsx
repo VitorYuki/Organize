@@ -68,7 +68,7 @@ export function Settings({ user, update, logout, notify }: Props) {
   }
   return (
     <>
-      <Header title="Ajustes" eyebrow="Preferências pessoais" />
+      <Header title="Ajustes" />
       {!password && !confirm && <Alert text={error} />}
       <section className="panel">
         <div className="section-head">

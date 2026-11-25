@@ -1,9 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { RefreshCw, WifiOff } from "lucide-react";
-import "@fontsource-variable/dm-sans";
-import "@fontsource/instrument-serif/latin-400.css";
-import "@fontsource/instrument-serif/latin-400-italic.css";
 import "./style.css";
 import { api, message } from "./api";
 import { Auth } from "./Auth";
@@ -94,7 +91,12 @@ function App() {
       document.documentElement.dataset.theme = d ? "dark" : "light";
       document
         .querySelector('meta[name="theme-color"]')
-        ?.setAttribute("content", d ? "#17211e" : "#f7f6f1");
+        ?.setAttribute(
+          "content",
+          getComputedStyle(document.documentElement)
+            .getPropertyValue("--paper")
+            .trim(),
+        );
       setDark(d);
     }
     apply();
@@ -119,19 +121,26 @@ function App() {
   useEffect(() => {
     if (!import.meta.env.PROD || !("serviceWorker" in navigator)) return;
     let active = true;
-    const inspect = (sw: ServiceWorker | null) => {
-      if (active && sw && navigator.serviceWorker.controller) setWorker(sw);
-    };
     navigator.serviceWorker
       .register("/sw.js")
       .then((reg) => {
-        inspect(reg.waiting);
-        reg.addEventListener("updatefound", () => {
-          const installing = reg.installing;
-          installing?.addEventListener("statechange", () => {
-            if (installing.state === "installed") inspect(installing);
-          });
-        });
+        const showWaiting = () => {
+          const waiting = reg.waiting;
+          if (
+            active &&
+            waiting &&
+            reg.active &&
+            waiting !== reg.active &&
+            navigator.serviceWorker.controller
+          ) {
+            setWorker(waiting);
+          }
+        };
+        const watchInstalling = () =>
+          reg.installing?.addEventListener("statechange", showWaiting);
+        showWaiting();
+        watchInstalling();
+        reg.addEventListener("updatefound", watchInstalling);
       })
       .catch(() => {});
     return () => {

@@ -5,7 +5,6 @@ import {
   ChevronRight,
   ClipboardList,
   House,
-  LayoutGrid,
   Settings as SettingsIcon,
   Sun,
 } from "lucide-react";
@@ -228,12 +227,11 @@ export function Workspace({
       </a>
       <aside className="sidebar">
         <Logo />
-        <div className="side-rule" />
         <nav aria-label="Navegação principal" className="side-nav">
           {navLinks(false)}
         </nav>
         <div className="side-library">
-          <div className="overline">Biblioteca</div>
+          <div className="sidebar-label">Biblioteca</div>
           <nav aria-label="Biblioteca">
             <a
               href="#notas"
@@ -271,13 +269,7 @@ export function Workspace({
             {user.name.slice(0, 1).toUpperCase()}
           </button>
         </div>
-        <div className="desktop-top">
-          <LayoutGrid size={15} />
-          <span>Meu espaço</span>
-          <ChevronRight size={14} />
-          <strong>{titles[page]}</strong>
-        </div>
-        <main id="main-content" tabIndex={-1}>
+        <main id="main-content" className={`page-${page}`} tabIndex={-1}>
           {error && (
             <div className="error-panel" role="alert">
               {error}

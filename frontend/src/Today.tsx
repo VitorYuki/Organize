@@ -1,7 +1,6 @@
 import { useState } from "react";
 import {
   Check,
-  CheckCheck,
   ChevronRight,
   Flag,
   ListChecks,
@@ -46,52 +45,40 @@ export function TaskRow({
     </div>
   );
 }
-export function Progress({
-  tasks,
-  home = false,
-}: {
-  tasks: Task[];
-  home?: boolean;
-}) {
+export function Progress({ tasks }: { tasks: Task[] }) {
   const today = dateKey(),
     daily = tasks.filter((t) => t.due_date === today),
     done = daily.filter((t) => t.completed).length,
     pct = daily.length ? Math.round((done / daily.length) * 100) : 0;
   return (
-    <div className={"progress-card " + (home ? "home-progress" : "")}>
-      <div className="progress-text">
-        <span className="overline">
-          <CheckCheck size={15} /> Progresso diário
-        </span>
+    <section className="progress-card">
+      <div>
+        <h2>Progresso diário</h2>
         <p>
-          <b>{done}</b>
-          <span> / {daily.length}</span>
+          {daily.length
+            ? `${done} de ${daily.length} concluídas`
+            : "Nenhuma tarefa para hoje"}
         </p>
-        <div className="progress-line">
-          <div
-            role="progressbar"
-            aria-label="Progresso diário"
-            aria-valuemin={0}
-            aria-valuemax={100}
-            aria-valuenow={pct}
-          >
-            <i style={{ width: pct + "%" }} />
-          </div>
-          <small>{pct}%</small>
-        </div>
-        <small>
-          {daily.length - done}{" "}
-          {daily.length - done === 1 ? "tarefa pendente" : "tarefas pendentes"}
-        </small>
       </div>
-      {home && (
-        <div className="progress-art" aria-hidden="true">
-          <div />
-          <i />
-          <b />
-        </div>
-      )}
-    </div>
+      <div
+        className="progress-meter"
+        role="progressbar"
+        aria-label="Progresso diário"
+        aria-valuenow={pct}
+      >
+        <svg viewBox="0 0 48 48" aria-hidden="true">
+          <circle cx="24" cy="24" r="20" />
+          <circle
+            cx="24"
+            cy="24"
+            r="20"
+            pathLength="100"
+            strokeDasharray={`${pct} 100`}
+          />
+        </svg>
+        <span aria-hidden="true">{pct}%</span>
+      </div>
+    </section>
   );
 }
 type TodayProps = {
@@ -129,7 +116,7 @@ export function Today({ tasks, open, toggle }: TodayProps) {
   return (
     <>
       <Header
-        eyebrow={labelDate(today, {
+        subtitle={labelDate(today, {
           weekday: "long",
           day: "numeric",
           month: "long",

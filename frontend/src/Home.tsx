@@ -1,5 +1,5 @@
 import {
-  ArrowUpRight,
+  ChevronRight,
   CalendarDays,
   CalendarPlus,
   CheckSquare,
@@ -8,8 +8,6 @@ import {
   FileText,
   ListChecks,
   ListPlus,
-  Plus,
-  Sun,
 } from "lucide-react";
 import { clock, dateKey, labelDate } from "./dates";
 import { Progress, TaskRow } from "./Today";
@@ -18,10 +16,10 @@ import { ListCard, NoteCard } from "./Library";
 import { Empty } from "./ui";
 import type { Editor, Page, Records, Task, User } from "./types";
 const shortcuts = [
-  { kind: "tasks", label: "Nova tarefa", Icon: CheckSquare, tint: "sage" },
-  { kind: "events", label: "Novo evento", Icon: CalendarPlus, tint: "amber" },
-  { kind: "notes", label: "Nova anotação", Icon: FilePenLine, tint: "blue" },
-  { kind: "lists", label: "Nova lista", Icon: ListPlus, tint: "violet" },
+  { kind: "tasks", label: "Nova tarefa", Icon: CheckSquare },
+  { kind: "events", label: "Novo evento", Icon: CalendarPlus },
+  { kind: "notes", label: "Nova anotação", Icon: FilePenLine },
+  { kind: "lists", label: "Nova lista", Icon: ListPlus },
 ] as const;
 function ViewAll({
   click,
@@ -33,7 +31,7 @@ function ViewAll({
   return (
     <button className="section-link" onClick={click}>
       {label}
-      <ArrowUpRight size={16} />
+      <ChevronRight size={16} />
     </button>
   );
 }
@@ -70,35 +68,31 @@ export function Home({
   return (
     <>
       <header className="home-head">
-        <div className="overline">
-          <Sun size={16} />
+        <p className="page-date">
           {labelDate(day, { weekday: "long", day: "numeric", month: "long" })}
-        </div>
+        </p>
         <h1>
-          {greeting}, <em>{user.name.trim().split(/\s+/)[0] || "você"}.</em>
+          {greeting}, {user.name.trim().split(/\s+/)[0] || "você"}.
         </h1>
       </header>
-      <div className="home-top">
-        <Progress tasks={data.tasks} home />
-        <section className="panel shortcuts-panel">
-          <div className="section-head">
-            <h2>Criação rápida</h2>
-            <Plus size={19} />
-          </div>
-          <div className="shortcuts">
-            {shortcuts.map(({ kind, label, Icon, tint }) => (
-              <button key={kind} onClick={() => open({ kind })}>
-                <span className={"list-icon tint-" + tint}>
+      <div className="home-layout">
+        <div className="home-overview">
+          <Progress tasks={data.tasks} />
+          <section className="panel">
+            <div className="section-head">
+              <h2>Criação rápida</h2>
+            </div>
+            <div className="shortcuts">
+              {shortcuts.map(({ kind, label, Icon }) => (
+                <button key={kind} onClick={() => open({ kind })}>
                   <Icon size={20} />
-                </span>
-                <span>{label}</span>
-              </button>
-            ))}
-          </div>
-        </section>
-      </div>
-      <div className="home-grid">
-        <section className="panel">
+                  <span>{label}</span>
+                </button>
+              ))}
+            </div>
+          </section>
+        </div>
+        <section className="panel home-focus">
           <div className="section-head">
             <h2>Tarefas em foco</h2>
             <ViewAll click={() => go("hoje")} />
@@ -115,12 +109,12 @@ export function Home({
           ) : (
             <Empty
               icon={ListChecks}
-              title="Tudo em dia"
-              body="Suas tarefas de hoje e de alta prioridade aparecem aqui."
+              title="Nenhuma tarefa em foco"
+              body="Tarefas pendentes de hoje, atrasadas ou de alta prioridade aparecem aqui."
             />
           )}
         </section>
-        <section className="panel">
+        <section className="panel home-agenda">
           <div className="section-head">
             <h2>Próximos eventos</h2>
             <ViewAll click={() => go("calendario")} />
@@ -134,16 +128,15 @@ export function Home({
               />
             ))
           ) : (
-            <Empty
-              icon={CalendarDays}
-              title="Agenda livre"
-              body="Adicione seu próximo compromisso."
-            />
+            <Empty icon={CalendarDays} title="Nenhum evento próximo" />
           )}
         </section>
-        <section className="panel">
+        <section
+          className="panel home-library"
+          aria-labelledby="home-notes-title"
+        >
           <div className="section-head">
-            <h2>Anotações</h2>
+            <h2 id="home-notes-title">Anotações</h2>
             <ViewAll click={() => go("notas")} label="Ver todas" />
           </div>
           {data.notes.length ? (
@@ -157,16 +150,15 @@ export function Home({
               ))}
             </div>
           ) : (
-            <Empty
-              icon={FileText}
-              title="Espaço para suas ideias"
-              body="Crie uma anotação para encontrá-la aqui."
-            />
+            <Empty icon={FileText} title="Nenhuma anotação" />
           )}
         </section>
-        <section className="panel">
+        <section
+          className="panel home-lists"
+          aria-labelledby="home-lists-title"
+        >
           <div className="section-head">
-            <h2>Minhas listas</h2>
+            <h2 id="home-lists-title">Minhas listas</h2>
             <ViewAll click={() => go("listas")} label="Ver todas" />
           </div>
           {data.lists.length ? (
@@ -176,11 +168,7 @@ export function Home({
                 <ListCard list={l} open={() => selectList(l.id)} key={l.id} />
               ))
           ) : (
-            <Empty
-              icon={ClipboardList}
-              title="Nenhuma lista ainda"
-              body="Crie uma lista e acompanhe seus itens."
-            />
+            <Empty icon={ClipboardList} title="Nenhuma lista" />
           )}
         </section>
       </div>
