@@ -277,7 +277,12 @@ export function Workspace({
             {user.name.slice(0, 1).toUpperCase()}
           </button>
         </div>
-        <main id="main-content" className={`page-${page}`} tabIndex={-1}>
+        <main
+          key={`${page}/${listId ?? ""}`}
+          id="main-content"
+          className={`page-${page}`}
+          tabIndex={-1}
+        >
           {error && (
             <div className="error-panel" role="alert">
               {error}

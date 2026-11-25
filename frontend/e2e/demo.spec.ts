@@ -5,6 +5,34 @@ import { expect, test, type Page } from "@playwright/test";
 const button = (page: Page, name: string) =>
   page.getByRole("button", { name, exact: true });
 
+test("transições respondem à preferência de movimento reduzido", async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  await page.goto("/");
+  await expect(page.locator(".auth-form")).toHaveCSS(
+    "animation-name",
+    "content-in",
+  );
+  await button(page, "Experimentar sem conta").click();
+  await navigate(page, "Calendário");
+  await expect(page.locator("#main-content")).toHaveCSS(
+    "animation-duration",
+    "0.3s",
+  );
+  const month = page.locator(".month-grid");
+  await button(page, "Próximo mês").click();
+  await expect(month).toHaveCSS("animation-name", "state-in");
+  await button(page, "Novo evento").click();
+  const dialog = page.getByRole("dialog");
+  await expect(dialog).toHaveCSS("animation-name", "sheet-in");
+
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await expect(dialog).toHaveCSS("animation-name", "none");
+  await page.keyboard.press("Escape");
+  await expect(dialog).toBeHidden();
+});
+
 async function navigate(page: Page, name: string) {
   const tab = page
     .getByRole("navigation", { name: "Navegação principal" })

@@ -74,7 +74,9 @@ export function Auth({
         </button>
       </header>
       <div className="auth-form">
-        <h1>{register ? "Crie sua conta" : "Entre no Organize"}</h1>
+        <h1 key={register ? "register" : "login"}>
+          {register ? "Crie sua conta" : "Entre no Organize"}
+        </h1>
         <p className="intro">
           {fromDemo
             ? "Sua conta começa vazia. Os dados temporários serão apagados ao concluir o cadastro."

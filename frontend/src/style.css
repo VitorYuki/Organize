@@ -34,6 +34,10 @@
   --shadow: 0 8px 28px rgb(22 31 26 / 9%);
   --radius-control: 9px;
   --radius-group: 14px;
+  --motion-quick: 140ms;
+  --motion-ui: 210ms;
+  --motion-enter: 300ms;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --page-gutter: 16px;
   --nav-clearance: calc(88px + env(safe-area-inset-bottom));
 }
@@ -121,16 +125,22 @@ button:disabled {
 }
 
 button,
-a {
+a,
+summary {
   transition:
-    background-color 140ms ease,
-    color 140ms ease,
-    transform 140ms ease;
+    background-color var(--motion-quick) ease,
+    border-color var(--motion-quick) ease,
+    color var(--motion-quick) ease,
+    box-shadow var(--motion-quick) ease,
+    transform var(--motion-ui) var(--ease-out),
+    filter var(--motion-quick) ease,
+    opacity var(--motion-quick) ease;
 }
 
 button:not(:disabled):active,
-a:active {
-  transform: translateY(1px);
+a:active,
+summary:active {
+  transform: translateY(1px) scale(0.98);
 }
 
 :where(button, a, input, textarea, select, summary):focus-visible {
@@ -758,10 +768,12 @@ input::-webkit-date-and-time-value {
 .progress-meter circle + circle {
   stroke: currentColor;
   stroke-linecap: round;
-  transition: stroke-dasharray 200ms ease;
+  transition:
+    stroke-dasharray var(--motion-enter) var(--ease-out),
+    opacity var(--motion-ui) ease;
 }
 .progress-meter[aria-valuenow="0"] circle + circle {
-  visibility: hidden;
+  opacity: 0;
 }
 
 .shortcuts {
@@ -1255,10 +1267,11 @@ dialog {
 }
 
 dialog[open] {
-  animation: sheet-in 180ms ease-out both;
+  animation: sheet-in var(--motion-enter) var(--ease-out) both;
 }
 dialog::backdrop {
-  background: rgb(9 14 11 / 55%);
+  background: rgb(10 10 13 / 55%);
+  animation: backdrop-in var(--motion-ui) ease-out both;
 }
 body:has(dialog[open]) {
   overflow: hidden;
@@ -1266,7 +1279,7 @@ body:has(dialog[open]) {
 @keyframes sheet-in {
   from {
     opacity: 0;
-    transform: translateY(9px);
+    transform: translateY(18px);
   }
 }
 
@@ -1311,7 +1324,7 @@ body:has(dialog[open]) {
   border: 1px solid var(--line);
   border-radius: var(--radius-group);
   background: var(--surface);
-  animation: pulse 1250ms ease-in-out infinite alternate;
+  animation: pulse 850ms ease-in-out 4 alternate;
 }
 .skeleton i:first-child {
   width: min(60%, 19rem);
@@ -1504,10 +1517,10 @@ body:has(dialog[open]) {
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+  *::after,
+  dialog::backdrop {
+    animation: none !important;
+    transition: none !important;
   }
 }
 
@@ -1559,4 +1572,125 @@ body:has(dialog[open]) {
 
 .shortcuts :is([data-kind="tasks"], [data-kind="events"]) svg {
   color: var(--brand-icon);
+}
+
+@keyframes backdrop-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes content-in {
+  from {
+    opacity: 0.78;
+    transform: translateY(7px);
+  }
+}
+
+@keyframes state-in {
+  from {
+    opacity: 0.65;
+    translate: 0 3px;
+  }
+}
+
+@keyframes selection-in {
+  from {
+    scale: 0.82;
+  }
+  65% {
+    scale: 1.06;
+  }
+}
+
+#main-content,
+.auth-form {
+  animation: content-in var(--motion-enter) var(--ease-out) both;
+}
+
+.auth-form h1,
+.month-grid,
+.empty,
+.alert,
+.error-panel,
+.global-notice,
+.filters,
+.install-help[open] > :not(summary) {
+  animation: state-in var(--motion-ui) var(--ease-out) both;
+}
+
+input,
+textarea,
+select {
+  transition:
+    background-color var(--motion-quick) ease,
+    border-color var(--motion-quick) ease,
+    box-shadow var(--motion-ui) var(--ease-out);
+}
+
+:is(input, textarea, select):focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-fill);
+}
+
+.checkbox-hit span {
+  transition:
+    background-color var(--motion-ui) ease,
+    border-color var(--motion-quick) ease,
+    color var(--motion-quick) ease;
+}
+
+.checkbox-hit input:checked + span svg,
+.bottom-nav a[aria-current="page"] svg,
+.theme-check {
+  animation: selection-in var(--motion-enter) var(--ease-out) both;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  :is(
+      .primary,
+      .secondary,
+      .danger,
+      .logout,
+      .avatar,
+      .icon-btn,
+      .quiet-btn,
+      .shortcuts button,
+      .note-card,
+      .list-card,
+      .event-row
+    ):not(:disabled):hover:not(:active) {
+    transform: translateY(-1px);
+  }
+
+  :is(.row-main, .bottom-nav a, .month-day, .segmented button):hover:not(
+      [aria-pressed="true"]
+    ):not([aria-current]) {
+    background-color: var(--field);
+  }
+
+  :is(.row-main, .section-link, .auth-switch button):hover:not(:disabled) {
+    color: var(--accent);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  button:not(:disabled):active,
+  a:active,
+  summary:active,
+  :is(
+      .primary,
+      .secondary,
+      .danger,
+      .logout,
+      .avatar,
+      .icon-btn,
+      .quiet-btn,
+      .shortcuts button,
+      .note-card,
+      .list-card,
+      .event-row
+    ):not(:disabled):hover:not(:active) {
+    transform: none;
+  }
 }

@@ -113,7 +113,7 @@ export function Calendar({
               </button>
             </div>
           </div>
-          <div className="month-grid">
+          <div className="month-grid" key={month}>
             {["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"].map((l) => (
               <span aria-hidden="true" className="weekday" key={l}>
                 {l}
