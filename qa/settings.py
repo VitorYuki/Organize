@@ -6,6 +6,7 @@ from config.settings import DATABASES, REST_FRAMEWORK
 DATABASES = {"default": {**DATABASES["default"], "NAME": "organize_e2e"}}
 ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
 CSRF_TRUSTED_ORIGINS = ["http://127.0.0.1:4174"]
+ORGANIZE_DEMO_ENABLED = True
 
 # Hundreds of UI actions share one loopback IP. Keep throttling enabled, with
 # a higher ceiling for this dedicated process. Production rates stay separate.
