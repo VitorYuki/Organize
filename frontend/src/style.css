@@ -7,17 +7,26 @@
 
 :root {
   color-scheme: light;
-  --paper: #f4f5f4;
+  --paper: #f5f5f6;
   --surface: #fff;
-  --rail: #eeefee;
-  --field: #f6f7f6;
-  --ink: #1b201e;
-  --muted: #555e59;
-  --line: #e0e4e1;
-  --control-line: #848d86;
-  --accent: #146449;
+  --rail: #eeeef0;
+  --field: #f7f7f8;
+  --ink: #202126;
+  --muted: #575962;
+  --line: #e2e3e7;
+  --control-line: #848793;
+  --accent: #414753;
   --on-accent: #fff;
-  --accent-fill: #e6f0e9;
+  --accent-fill: #ebedf1;
+  --brand: #146449;
+  --brand-mark: #146449;
+  --brand-icon: #146449;
+  --blue: #365d85;
+  --blue-fill: #e8eff7;
+  --amber: #805817;
+  --amber-fill: #f5eddf;
+  --plum: #745675;
+  --plum-fill: #f1eaf2;
   --danger: #a13030;
   --on-danger: #fff;
   --danger-fill: #faecea;
@@ -31,21 +40,30 @@
 
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --paper: #171918;
-  --surface: #222523;
-  --rail: #1b1e1c;
-  --field: #1d201e;
-  --ink: #f0f3f0;
-  --muted: #adb7b0;
-  --line: #363d38;
-  --control-line: #758078;
-  --accent: #8bd0ad;
-  --on-accent: #14251d;
-  --accent-fill: #293c32;
+  --paper: #121214;
+  --surface: #1e1e21;
+  --rail: #171719;
+  --field: #18181b;
+  --ink: #f3f3f5;
+  --muted: #b6b6bf;
+  --line: #35353c;
+  --control-line: #7b7c86;
+  --accent: #d7d9e0;
+  --on-accent: #222329;
+  --accent-fill: #303138;
+  --brand: #146449;
+  --brand-mark: #146449;
+  --brand-icon: #92c8ad;
+  --blue: #a8c7e7;
+  --blue-fill: #25303f;
+  --amber: #e2bf85;
+  --amber-fill: #382f24;
+  --plum: #d6b8d8;
+  --plum-fill: #382e3b;
   --danger: #f4a39b;
   --on-danger: #321c19;
   --danger-fill: #402927;
-  --nav-glass: rgb(34 37 35 / 91%);
+  --nav-glass: rgb(30 30 33 / 91%);
   --shadow: 0 8px 28px rgb(0 0 0 / 28%);
 }
 
@@ -280,8 +298,8 @@ input::-webkit-date-and-time-value {
   width: 32px;
   height: 32px;
   border-radius: 9px;
-  background: var(--accent);
-  color: var(--on-accent);
+  background: var(--brand-mark);
+  color: #fff;
 }
 
 .brand-mark svg {
@@ -763,10 +781,6 @@ input::-webkit-date-and-time-value {
   border-radius: var(--radius-control);
 }
 
-.shortcuts svg,
-.note-card > svg {
-  color: var(--accent);
-}
 .shortcuts button:nth-child(n + 3) {
   border-top: 1px solid var(--line);
   border-radius: 0 0 var(--radius-control) var(--radius-control);
@@ -1495,4 +1509,54 @@ body:has(dialog[open]) {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+.primary.create-activity {
+  background: var(--brand);
+  color: #fff;
+}
+
+:is(.bottom-nav, .side-nav) a:is([href="#hoje"], [href="#calendario"]) {
+  --accent: var(--amber);
+  --accent-fill: var(--amber-fill);
+}
+
+:is(.bottom-nav, .side-nav) a[href="#calendario"],
+.calendar-layout {
+  --accent: var(--blue);
+  --accent-fill: var(--blue-fill);
+}
+
+:root[data-theme="dark"] .calendar-layout {
+  --on-accent: #1b2836;
+}
+
+.progress-meter,
+.home-focus .empty-icon,
+.home-focus .section-link {
+  color: var(--amber);
+}
+
+.home-agenda :is(.section-link, .empty-icon),
+.home-agenda .day-tile {
+  color: var(--blue);
+}
+
+.home-agenda .day-tile {
+  background: var(--blue-fill);
+}
+
+.note-card > svg,
+.home-library :is(.section-link, .empty-icon),
+.shortcuts [data-kind="notes"] svg {
+  color: var(--amber);
+}
+
+.home-lists :is(.section-link, .empty-icon),
+.shortcuts [data-kind="lists"] svg {
+  color: var(--plum);
+}
+
+.shortcuts :is([data-kind="tasks"], [data-kind="events"]) svg {
+  color: var(--brand-icon);
 }

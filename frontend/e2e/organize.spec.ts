@@ -65,6 +65,7 @@ test("conta, agenda, anotações, listas e preferências", async ({
   const errors: string[] = [];
   page.on("pageerror", (error) => errors.push(error.message));
   await register(page, address);
+  await expect(button(page, "Nova tarefa")).toBeVisible();
   await hasNoOverflow(page);
   await capture(page, info, "home-clara");
 

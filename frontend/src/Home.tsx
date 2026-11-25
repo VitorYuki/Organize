@@ -84,7 +84,11 @@ export function Home({
             </div>
             <div className="shortcuts">
               {shortcuts.map(({ kind, label, Icon }) => (
-                <button key={kind} onClick={() => open({ kind })}>
+                <button
+                  key={kind}
+                  data-kind={kind}
+                  onClick={() => open({ kind })}
+                >
                   <Icon size={20} />
                   <span>{label}</span>
                 </button>

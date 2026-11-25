@@ -123,7 +123,10 @@ export function Today({ tasks, open, toggle }: TodayProps) {
         })}
         title="Hoje"
         action={
-          <button className="primary" onClick={() => open({ kind: "tasks" })}>
+          <button
+            className="primary create-activity"
+            onClick={() => open({ kind: "tasks" })}
+          >
             <Plus />
             Nova tarefa
           </button>
