@@ -83,161 +83,173 @@ export function Settings({
     <>
       <Header title="Ajustes" />
       {!password && !confirm && <Alert text={error} />}
-      {user.is_guest ? (
-        <section className="panel demo-profile" aria-labelledby="guest-profile">
-          <div className="demo-identity">
-            <span className="avatar" aria-hidden="true">
-              V
-            </span>
-            <div>
-              <h2 id="guest-profile">Visitante</h2>
-              <p>Modo demonstração</p>
-            </div>
-          </div>
-          <p>
-            Seus dados são temporários e serão apagados ao sair ou quando a
-            sessão expirar.
-          </p>
-          <div className="demo-profile-actions">
-            <button
-              className="secondary"
-              disabled={busy}
-              onClick={createAccount}
+      <div className="settings-layout">
+        <div className="settings-account">
+          {user.is_guest ? (
+            <section
+              className="panel demo-profile"
+              aria-labelledby="guest-profile"
             >
-              Criar conta pessoal
-            </button>
-            <button
-              className="quiet-btn"
-              disabled={busy}
-              onClick={() => {
-                setError("");
-                setConfirm("reset");
-              }}
-            >
-              <RotateCcw size={17} /> Restaurar dados de demonstração
-            </button>
-          </div>
-        </section>
-      ) : (
-        <section className="panel">
-          <div className="section-head">
-            <h2>Meu perfil</h2>
-          </div>
-          <form className="form-stack" onSubmit={submit}>
-            <div className="field-grid">
-              <Field label="Nome">
-                <input
-                  required
-                  name="name"
-                  defaultValue={user.name}
-                  maxLength={150}
-                  autoComplete="name"
-                />
-              </Field>
-              <Field label="E-mail">
-                <input
-                  required
-                  type="email"
-                  name="email"
-                  defaultValue={user.email}
-                  autoComplete="email"
-                />
-              </Field>
+              <div className="demo-identity">
+                <span className="avatar" aria-hidden="true">
+                  V
+                </span>
+                <div>
+                  <h2 id="guest-profile">Visitante</h2>
+                  <p>Modo demonstração</p>
+                </div>
+              </div>
+              <p>
+                Seus dados são temporários e serão apagados ao sair ou quando a
+                sessão expirar.
+              </p>
+              <div className="demo-profile-actions">
+                <button
+                  className="secondary"
+                  disabled={busy}
+                  onClick={createAccount}
+                >
+                  Criar conta pessoal
+                </button>
+                <button
+                  className="quiet-btn"
+                  disabled={busy}
+                  onClick={() => {
+                    setError("");
+                    setConfirm("reset");
+                  }}
+                >
+                  <RotateCcw size={17} /> Restaurar dados de demonstração
+                </button>
+              </div>
+            </section>
+          ) : (
+            <section className="panel">
+              <div className="section-head">
+                <h2>Meu perfil</h2>
+              </div>
+              <form className="form-stack" onSubmit={submit}>
+                <div className="field-grid">
+                  <Field label="Nome">
+                    <input
+                      required
+                      name="name"
+                      defaultValue={user.name}
+                      maxLength={150}
+                      autoComplete="name"
+                    />
+                  </Field>
+                  <Field label="E-mail">
+                    <input
+                      required
+                      type="email"
+                      name="email"
+                      defaultValue={user.email}
+                      autoComplete="email"
+                    />
+                  </Field>
+                </div>
+                <div className="profile-actions">
+                  <button
+                    type="button"
+                    className="quiet-btn"
+                    onClick={() => {
+                      setError("");
+                      setPassword(true);
+                    }}
+                  >
+                    <KeyRound size={17} />
+                    Alterar senha
+                  </button>
+                  <button disabled={busy} className="secondary">
+                    Salvar perfil
+                  </button>
+                </div>
+              </form>
+            </section>
+          )}
+        </div>
+        <div className="settings-preferences">
+          <section className="panel">
+            <div className="section-head">
+              <h2>Aparência</h2>
             </div>
-            <div className="profile-actions">
-              <button
-                type="button"
-                className="quiet-btn"
-                onClick={() => {
-                  setError("");
-                  setPassword(true);
-                }}
-              >
-                <KeyRound size={17} />
-                Alterar senha
-              </button>
-              <button disabled={busy} className="secondary">
-                Salvar perfil
-              </button>
+            <div className="theme-options">
+              {(
+                [
+                  { v: "light", title: "Claro", Icon: Sun },
+                  { v: "dark", title: "Escuro", Icon: Moon },
+                  { v: "system", title: "Automático", Icon: Laptop },
+                ] as const
+              ).map(({ v, title, Icon }) => (
+                <button
+                  disabled={busy}
+                  aria-pressed={user.theme === v}
+                  key={v}
+                  onClick={() => changeTheme(v)}
+                >
+                  <Icon size={21} />
+                  <strong>{title}</strong>
+                  {user.theme === v && (
+                    <Check size={14} className="theme-check" />
+                  )}
+                </button>
+              ))}
             </div>
-          </form>
-        </section>
-      )}
-      <section className="panel">
-        <div className="section-head">
-          <h2>Aparência</h2>
+          </section>
+          <section className="panel">
+            <div className="section-head">
+              <h2>Aplicativo</h2>
+              <span className="version">v1.0.0</span>
+            </div>
+            <dl className="preferences">
+              <div>
+                <dt>Idioma</dt>
+                <dd>Português (Brasil)</dd>
+              </div>
+              <div>
+                <dt>Fuso horário</dt>
+                <dd>América/São Paulo</dd>
+              </div>
+            </dl>
+            <details className="install-help">
+              <summary>
+                <MonitorSmartphone size={19} />
+                Instalar o Organize
+              </summary>
+              <ul>
+                <li>
+                  <strong>iPhone</strong> — Abra o Organize no Safari, toque em
+                  Compartilhar e em “Adicionar à Tela de Início”.
+                </li>
+                <li>
+                  <strong>Android</strong> — Abra o menu do navegador e escolha
+                  “Instalar aplicativo” ou “Adicionar à tela inicial”.
+                </li>
+                <li>
+                  <strong>Computador</strong> — Em um navegador compatível, use
+                  o ícone de instalação na barra de endereço.
+                </li>
+              </ul>
+              <p>
+                A instalação depende do suporte do navegador e de uma conexão
+                HTTPS ou localhost. Seus dados precisam de conexão para abrir e
+                salvar.
+              </p>
+            </details>
+          </section>
         </div>
-        <div className="theme-options">
-          {(
-            [
-              { v: "light", title: "Claro", Icon: Sun },
-              { v: "dark", title: "Escuro", Icon: Moon },
-              { v: "system", title: "Automático", Icon: Laptop },
-            ] as const
-          ).map(({ v, title, Icon }) => (
-            <button
-              disabled={busy}
-              aria-pressed={user.theme === v}
-              key={v}
-              onClick={() => changeTheme(v)}
-            >
-              <Icon size={21} />
-              <strong>{title}</strong>
-              {user.theme === v && <Check size={14} className="theme-check" />}
-            </button>
-          ))}
-        </div>
-      </section>
-      <section className="panel">
-        <div className="section-head">
-          <h2>Aplicativo</h2>
-          <span className="version">v1.0.0</span>
-        </div>
-        <dl className="preferences">
-          <div>
-            <dt>Idioma</dt>
-            <dd>Português (Brasil)</dd>
-          </div>
-          <div>
-            <dt>Fuso horário</dt>
-            <dd>América/São Paulo</dd>
-          </div>
-        </dl>
-        <details className="install-help">
-          <summary>
-            <MonitorSmartphone size={19} />
-            Instalar o Organize
-          </summary>
-          <ul>
-            <li>
-              <strong>iPhone</strong> — Abra o Organize no Safari, toque em
-              Compartilhar e em “Adicionar à Tela de Início”.
-            </li>
-            <li>
-              <strong>Android</strong> — Abra o menu do navegador e escolha
-              “Instalar aplicativo” ou “Adicionar à tela inicial”.
-            </li>
-            <li>
-              <strong>Computador</strong> — Em um navegador compatível, use o
-              ícone de instalação na barra de endereço.
-            </li>
-          </ul>
-          <p>
-            A instalação depende do suporte do navegador e de uma conexão HTTPS
-            ou localhost. Seus dados precisam de conexão para abrir e salvar.
-          </p>
-        </details>
-      </section>
-      <button
-        className="logout"
-        onClick={() => {
-          setError("");
-          setConfirm("logout");
-        }}
-      >
-        <LogOut size={18} />
-        {exitLabel}
-      </button>
+        <button
+          className="logout"
+          onClick={() => {
+            setError("");
+            setConfirm("logout");
+          }}
+        >
+          <LogOut size={18} />
+          {exitLabel}
+        </button>
+      </div>
       {confirm && (
         <Modal
           title={confirmLabel + "?"}

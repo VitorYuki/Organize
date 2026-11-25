@@ -150,7 +150,7 @@ export function Calendar({
             })}
           </div>
         </section>
-        <section className="panel">
+        <section className="panel day-agenda">
           <div className="section-head">
             <h2 className="calendar-date">
               {labelDate(selected, {

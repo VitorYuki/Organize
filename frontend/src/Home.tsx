@@ -78,9 +78,9 @@ export function Home({
       <div className="home-layout">
         <div className="home-overview">
           <Progress tasks={data.tasks} />
-          <section className="panel">
+          <section className="home-create" aria-labelledby="home-create-title">
             <div className="section-head">
-              <h2>Criação rápida</h2>
+              <h2 id="home-create-title">Criação rápida</h2>
             </div>
             <div className="shortcuts">
               {shortcuts.map(({ kind, label, Icon }) => (
@@ -96,84 +96,88 @@ export function Home({
             </div>
           </section>
         </div>
-        <section className="panel home-focus">
+        <section className="home-group home-focus">
           <div className="section-head">
             <h2>Tarefas em foco</h2>
             <ViewAll click={() => go("hoje")} />
           </div>
-          {focus.length ? (
-            focus.map((t) => (
-              <TaskRow
-                key={t.id}
-                task={t}
-                edit={() => open({ kind: "tasks", record: t })}
-                toggle={() => toggle(t)}
-              />
-            ))
-          ) : (
-            <Empty
-              icon={ListChecks}
-              title="Nenhuma tarefa em foco"
-              body="Tarefas pendentes de hoje, atrasadas ou de alta prioridade aparecem aqui."
-            />
-          )}
+          <div className="group-rows">
+            {focus.length ? (
+              focus.map((t) => (
+                <TaskRow
+                  key={t.id}
+                  task={t}
+                  edit={() => open({ kind: "tasks", record: t })}
+                  toggle={() => toggle(t)}
+                />
+              ))
+            ) : (
+              <Empty icon={ListChecks} title="Nenhuma tarefa em foco" />
+            )}
+          </div>
         </section>
-        <section className="panel home-agenda">
+        <section className="home-group home-agenda">
           <div className="section-head">
             <h2>Próximos eventos</h2>
             <ViewAll click={() => go("calendario")} />
           </div>
-          {agenda.length ? (
-            agenda.map((e) => (
-              <EventRow
-                event={e}
-                key={e.id}
-                open={() => open({ kind: "events", record: e })}
-              />
-            ))
-          ) : (
-            <Empty icon={CalendarDays} title="Nenhum evento próximo" />
-          )}
+          <div className="group-rows">
+            {agenda.length ? (
+              agenda.map((e) => (
+                <EventRow
+                  event={e}
+                  key={e.id}
+                  open={() => open({ kind: "events", record: e })}
+                />
+              ))
+            ) : (
+              <Empty icon={CalendarDays} title="Nenhum evento próximo" />
+            )}
+          </div>
         </section>
         <section
-          className="panel home-library"
+          className="home-group home-library"
           aria-labelledby="home-notes-title"
         >
           <div className="section-head">
             <h2 id="home-notes-title">Anotações</h2>
             <ViewAll click={() => go("notas")} label="Ver todas" />
           </div>
-          {data.notes.length ? (
-            <div className="home-notes">
-              {data.notes.slice(0, 2).map((n) => (
-                <NoteCard
-                  note={n}
-                  open={() => open({ kind: "notes", record: n })}
-                  key={n.id}
-                />
-              ))}
-            </div>
-          ) : (
-            <Empty icon={FileText} title="Nenhuma anotação" />
-          )}
+          <div className="group-rows">
+            {data.notes.length ? (
+              <div className="home-notes">
+                {data.notes.slice(0, 2).map((n) => (
+                  <NoteCard
+                    note={n}
+                    open={() => open({ kind: "notes", record: n })}
+                    key={n.id}
+                  />
+                ))}
+              </div>
+            ) : (
+              <Empty icon={FileText} title="Nenhuma anotação" />
+            )}
+          </div>
         </section>
         <section
-          className="panel home-lists"
+          className="home-group home-lists"
           aria-labelledby="home-lists-title"
         >
           <div className="section-head">
             <h2 id="home-lists-title">Minhas listas</h2>
             <ViewAll click={() => go("listas")} label="Ver todas" />
           </div>
-          {data.lists.length ? (
-            data.lists
-              .slice(0, 3)
-              .map((l) => (
-                <ListCard list={l} open={() => selectList(l.id)} key={l.id} />
-              ))
-          ) : (
-            <Empty icon={ClipboardList} title="Nenhuma lista" />
-          )}
+          <div className="group-rows">
+            {data.lists.length ? (
+              data.lists
+                .slice(0, 3)
+                .map((l) => (
+                  <ListCard list={l} open={() => selectList(l.id)} key={l.id} />
+                ))
+            ) : (
+              <Empty icon={ClipboardList} title="Nenhuma lista" />
+            )}
+          </div>
         </section>
       </div>
     </>

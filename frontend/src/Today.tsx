@@ -132,90 +132,98 @@ export function Today({ tasks, open, toggle }: TodayProps) {
           </button>
         }
       />
-      <Progress tasks={tasks} />
-      <section className="panel">
-        <div className="section-head">
-          <h2>Minhas tarefas</h2>
-          <button
-            className="quiet-btn"
-            aria-expanded={filters}
-            onClick={() => setFilters(!filters)}
-          >
-            <SlidersHorizontal size={16} />
-            Filtros
-            <ChevronRight size={15} />
-          </button>
-        </div>
-        <div aria-label="Período das tarefas" className="segmented">
-          {Object.entries({
-            today: "Hoje",
-            late: "Atrasadas",
-            future: "Programadas",
-            all: "Todas",
-          }).map(([v, l]) => (
+      <div className="today-layout">
+        <Progress tasks={tasks} />
+        <section className="task-section">
+          <div className="section-head">
+            <h2>Minhas tarefas</h2>
             <button
-              key={v}
-              aria-pressed={period === v}
-              onClick={() => setPeriod(v)}
+              className="quiet-btn"
+              aria-expanded={filters}
+              aria-controls={filters ? "task-filters" : undefined}
+              onClick={() => setFilters(!filters)}
             >
-              {l}
+              <SlidersHorizontal size={16} />
+              Filtros
+              <ChevronRight size={15} />
             </button>
-          ))}
-        </div>
-        {filters && (
-          <div className="filters">
-            <label>
-              Status
-              <select
-                value={status}
-                onChange={(e) => setStatus(e.target.value)}
-              >
-                <option value="all">Todos</option>
-                <option value="pending">Pendentes</option>
-                <option value="done">Concluídas</option>
-              </select>
-            </label>
-            <label>
-              Prioridade
-              <select
-                value={priority}
-                onChange={(e) => setPriority(e.target.value)}
-              >
-                <option value="all">Todas</option>
-                {Object.entries(priorities).map(([k, v]) => (
-                  <option key={k} value={k}>
-                    {v}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label>
-              Ordenar por
-              <select value={order} onChange={(e) => setOrder(e.target.value)}>
-                <option value="date">Vencimento</option>
-                <option value="priority">Prioridade</option>
-                <option value="title">Título</option>
-              </select>
-            </label>
           </div>
-        )}
-        {visible.length ? (
-          visible.map((t) => (
-            <TaskRow
-              key={t.id}
-              task={t}
-              edit={() => open({ kind: "tasks", record: t })}
-              toggle={() => toggle(t)}
-            />
-          ))
-        ) : (
-          <Empty
-            icon={ListChecks}
-            title="Nenhuma tarefa por aqui"
-            body="Crie uma tarefa ou altere os filtros."
-          />
-        )}
-      </section>
+          <div aria-label="Período das tarefas" className="segmented">
+            {Object.entries({
+              today: "Hoje",
+              late: "Atrasadas",
+              future: "Programadas",
+              all: "Todas",
+            }).map(([v, l]) => (
+              <button
+                key={v}
+                aria-pressed={period === v}
+                onClick={() => setPeriod(v)}
+              >
+                {l}
+              </button>
+            ))}
+          </div>
+          {filters && (
+            <div className="filters" id="task-filters">
+              <label>
+                Status
+                <select
+                  value={status}
+                  onChange={(e) => setStatus(e.target.value)}
+                >
+                  <option value="all">Todos</option>
+                  <option value="pending">Pendentes</option>
+                  <option value="done">Concluídas</option>
+                </select>
+              </label>
+              <label>
+                Prioridade
+                <select
+                  value={priority}
+                  onChange={(e) => setPriority(e.target.value)}
+                >
+                  <option value="all">Todas</option>
+                  {Object.entries(priorities).map(([k, v]) => (
+                    <option key={k} value={k}>
+                      {v}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                Ordenar por
+                <select
+                  value={order}
+                  onChange={(e) => setOrder(e.target.value)}
+                >
+                  <option value="date">Vencimento</option>
+                  <option value="priority">Prioridade</option>
+                  <option value="title">Título</option>
+                </select>
+              </label>
+            </div>
+          )}
+          <div className="group-rows">
+            {visible.length ? (
+              visible.map((t) => (
+                <TaskRow
+                  key={t.id}
+                  task={t}
+                  edit={() => open({ kind: "tasks", record: t })}
+                  toggle={() => toggle(t)}
+                />
+              ))
+            ) : (
+              <Empty
+                icon={ListChecks}
+                title="Nenhuma tarefa por aqui"
+                body="Crie uma tarefa ou altere os filtros."
+              />
+            )}
+          </div>
+        </section>
+      </div>
     </>
   );
 }
