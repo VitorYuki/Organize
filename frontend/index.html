@@ -1,8 +1,72 @@
 <!doctype html>
 <html lang="pt-BR"><head>
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
-<meta name="theme-color" content="#f5f5f6"/><meta name="apple-mobile-web-app-capable" content="yes"/><meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+<meta name="theme-color" content="#f6f5f4"/><meta name="apple-mobile-web-app-capable" content="yes"/><meta name="apple-mobile-web-app-status-bar-style" content="default"/>
 <link rel="icon" href="/icon-192.png" type="image/png"/><link rel="apple-touch-icon" href="/apple-touch-icon.png"/><link rel="manifest" href="/manifest.webmanifest"/>
 <title>Organize · Organização pessoal</title>
 <script>try{var p=localStorage.getItem('organize-theme');document.documentElement.dataset.theme=p==='dark'||((!p||p==='system')&&matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light'}catch{}</script>
-</head><body><div id="root"></div><script type="module" src="/src/main.tsx"></script></body></html>
+<style>
+.startup {
+  --startup-bg: #f6f5f4;
+  --startup-ink: #171614;
+  --startup-muted: #615d59;
+  --startup-track: #dce8df;
+  --startup-signal: #146449;
+  box-sizing: border-box;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  text-align: center;
+  background: var(--startup-bg);
+  color: var(--startup-ink);
+  font-family: Inter, system-ui, sans-serif;
+}
+[data-theme="dark"] .startup {
+  --startup-bg: #171614;
+  --startup-ink: #f5f0ea;
+  --startup-muted: #c1b9ae;
+  --startup-track: #293b32;
+  --startup-signal: #91c9ac;
+}
+.startup img { display: block; margin: 0 auto 16px; border-radius: 22px; }
+.startup strong { font-size: 1.75rem; letter-spacing: -.04em; }
+.startup p { margin: 8px 0 20px; color: var(--startup-muted); }
+.startup-track {
+  display: block;
+  overflow: hidden;
+  width: 72px;
+  height: 3px;
+  margin: auto;
+  border-radius: 999px;
+  background: var(--startup-track);
+}
+.startup-track::before {
+  content: "";
+  display: block;
+  width: 32px;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--startup-signal);
+  animation: startup-sweep 1s var(--ease-in-out, cubic-bezier(.77, 0, .175, 1)) infinite alternate;
+}
+@keyframes startup-sweep { to { transform: translateX(40px); } }
+@media (prefers-reduced-motion: reduce) {
+  .startup-track::before { animation: none; margin: auto; }
+}
+</style>
+</head>
+<body style="margin:0">
+  <div id="root">
+    <main class="startup" role="status">
+      <div>
+        <img src="/icon-192.png" alt="" width="88" height="88"/>
+        <strong>Organize</strong>
+        <p>Abrindo seu espaço…</p>
+        <span class="startup-track" aria-hidden="true"></span>
+      </div>
+    </main>
+  </div>
+  <script type="module" src="/src/main.tsx"></script>
+</body></html>

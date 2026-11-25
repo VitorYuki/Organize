@@ -18,17 +18,18 @@ test("transições respondem à preferência de movimento reduzido", async ({
   await navigate(page, "Calendário");
   await expect(page.locator("#main-content")).toHaveCSS(
     "animation-duration",
-    "0.3s",
+    "0.16s",
   );
   const month = page.locator(".month-grid");
   await button(page, "Próximo mês").click();
-  await expect(month).toHaveCSS("animation-name", "state-in");
+  await expect(month).toHaveCSS("animation-name", "none");
   await button(page, "Novo evento").click();
   const dialog = page.getByRole("dialog");
   await expect(dialog).toHaveCSS("animation-name", "sheet-in");
 
   await page.emulateMedia({ reducedMotion: "reduce" });
-  await expect(dialog).toHaveCSS("animation-name", "none");
+  await expect(dialog).toHaveCSS("animation-name", "fade-in");
+  await expect(button(page, "Salvar")).toHaveCSS("transform", "none");
   await page.keyboard.press("Escape");
   await expect(dialog).toBeHidden();
 });

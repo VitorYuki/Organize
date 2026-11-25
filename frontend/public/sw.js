@@ -1,5 +1,5 @@
 /* Only the public offline document is cached. API and private views stay online. */
-const CACHE = "organize-offline-v3";
+const CACHE = "organize-offline-v4";
 const OFFLINE = "/offline.html";
 
 self.addEventListener("install", event => {

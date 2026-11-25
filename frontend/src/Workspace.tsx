@@ -9,7 +9,7 @@ import {
   Sun,
 } from "lucide-react";
 import { api, message } from "./api";
-import { Logo } from "./ui";
+import { Logo, Startup } from "./ui";
 import { Home } from "./Home";
 import { Today } from "./Today";
 import { Calendar } from "./Calendar";
@@ -221,6 +221,8 @@ export function Workspace({
         <span>{name}</span>
       </a>
     ));
+  if (!display && !error && page !== "ajustes") return <Startup />;
+
   return (
     <div className="app-shell">
       <a
@@ -300,19 +302,7 @@ export function Workspace({
               createAccount={createAccount}
               resetDemo={resetDemo}
             />
-          ) : !display ? (
-            !error && (
-              <div
-                className="skeleton"
-                role="status"
-                aria-label="Carregando seus dados"
-              >
-                <i />
-                <i />
-                <i />
-              </div>
-            )
-          ) : page === "home" ? (
+          ) : !display ? null : page === "home" ? (
             <Home
               user={user}
               data={display}
@@ -349,7 +339,10 @@ export function Workspace({
           )}
         </main>
       </div>
-      <nav className="bottom-nav" aria-label="Navegação principal">
+      <nav
+        className="bottom-nav"
+        aria-label="Navegação principal"
+      >
         {navLinks(true)}
       </nav>
       {editor && (

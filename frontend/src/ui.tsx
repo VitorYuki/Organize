@@ -21,6 +21,19 @@ export const iconMap: Record<string, LucideIcon> = {
   briefcase: BriefcaseBusiness,
   heart: Heart,
 };
+export function Startup() {
+  return (
+    <main className="startup" role="status">
+      <div>
+        <img src="/icon-192.png" alt="" width={88} height={88} />
+        <strong>Organize</strong>
+        <p>Abrindo seu espaço…</p>
+        <span className="startup-track" aria-hidden="true" />
+      </div>
+    </main>
+  );
+}
+
 export function Logo() {
   return (
     <span className="brand">

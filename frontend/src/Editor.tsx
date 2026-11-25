@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from "react";
+import { Check } from "lucide-react";
 import { Trash2 } from "lucide-react";
 import { dateKey, dateTimeISO, localInput, shiftDate } from "./dates";
 import {
@@ -8,7 +9,7 @@ import {
   type Editor as EditorState,
   type Save,
 } from "./types";
-import { Alert, Field, Modal } from "./ui";
+import { Alert, Field, Modal, iconMap } from "./ui";
 import { message } from "./api";
 const names = {
   tasks: ["Nova tarefa", "Editar tarefa"],
@@ -44,6 +45,12 @@ export function Editor({
   const [firstDate, setFirstDate] = useState(start.slice(0, 10)),
     [lastDate, setLastDate] = useState(
       event?.all_day ? shiftDate(end.slice(0, 10), -1) : end.slice(0, 10),
+    );
+  const [selectedIcon, setSelectedIcon] = useState(
+      list?.icon && listIcons[list.icon] ? list.icon : "list",
+    ),
+    [selectedColor, setSelectedColor] = useState(
+      list?.color && colors[list.color] ? list.color : "sage",
     );
   const done = () => {
     if (!busy) close();
@@ -245,24 +252,50 @@ export function Editor({
             </>
           )}
           {kind === "lists" && (
-            <div className="field-grid">
-              <Field label="Ícone">
-                <select name="icon" defaultValue={list?.icon || "list"}>
-                  {Object.entries(listIcons).map(([v, l]) => (
-                    <option key={v} value={v}>
-                      {l}
-                    </option>
-                  ))}
-                </select>
+            <div className="list-appearance">
+              <input type="hidden" name="icon" value={selectedIcon} />
+              <input type="hidden" name="color" value={selectedColor} />
+              <Field label="Escolha um ícone">
+                <div className="icon-picker" role="group" aria-label="Ícone da lista">
+                  {Object.entries(listIcons).map(([value, label]) => {
+                    const Icon = iconMap[value];
+                    return (
+                      <button
+                        key={value}
+                        type="button"
+                        className="icon-choice"
+                        aria-label={label}
+                        aria-pressed={selectedIcon === value}
+                        onClick={() => setSelectedIcon(value)}
+                      >
+                        <Icon size={21} aria-hidden="true" />
+                        <span>{label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
               </Field>
-              <Field label="Cor">
-                <select name="color" defaultValue={list?.color || "sage"}>
-                  {Object.entries(colors).map(([v, l]) => (
-                    <option key={v} value={v}>
-                      {l}
-                    </option>
+              <Field label="Escolha uma cor">
+                <div className="color-picker" role="group" aria-label="Cor da lista">
+                  {Object.entries(colors).map(([value, label]) => (
+                    <button
+                      key={value}
+                      type="button"
+                      className="color-choice"
+                      data-color={value}
+                      aria-label={label}
+                      aria-pressed={selectedColor === value}
+                      onClick={() => setSelectedColor(value)}
+                    >
+                      <span className="color-swatch">
+                        {selectedColor === value && (
+                          <Check size={17} aria-hidden="true" />
+                        )}
+                      </span>
+                      <span>{label}</span>
+                    </button>
                   ))}
-                </select>
+                </div>
               </Field>
             </div>
           )}

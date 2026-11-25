@@ -73,7 +73,7 @@ export function Calendar({
         title="Calendário"
         action={
           <button
-            className="primary create-activity"
+            className="primary"
             onClick={() => open({ kind: "events", date: selected })}
           >
             <Plus />

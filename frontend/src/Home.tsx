@@ -1,3 +1,4 @@
+import { useRef, useState } from "react";
 import {
   ChevronRight,
   CalendarDays,
@@ -47,9 +48,30 @@ export function Home({
   data: Records;
   open: (e: Editor) => void;
   go: (p: Page) => void;
-  toggle: (t: Task) => void;
+  toggle: (t: Task) => Promise<void>;
   selectList: (id: number) => void;
 }) {
+  const completing = useRef(new Set<number>());
+  const [retainedTasks, setRetainedTasks] = useState<ReadonlySet<number>>(
+    () => new Set(),
+  );
+
+  async function completeInFocus(task: Task) {
+    if (completing.current.has(task.id)) return;
+    completing.current.add(task.id);
+    setRetainedTasks(new Set(completing.current));
+    try {
+      await toggle(task);
+      if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        // Keep the row visible until the 160ms check animation has settled.
+        await new Promise<void>((resolve) => window.setTimeout(resolve, 220));
+      }
+    } finally {
+      completing.current.delete(task.id);
+      setRetainedTasks(new Set(completing.current));
+    }
+  }
+
   const day = dateKey(),
     hour = Number(clock(new Date()).slice(0, 2)),
     greeting = hour < 12 ? "Bom dia" : hour < 18 ? "Boa tarde" : "Boa noite";
@@ -58,7 +80,11 @@ export function Home({
     .sort((a, b) => Date.parse(a.starts_at) - Date.parse(b.starts_at))
     .slice(0, 3);
   const focus = data.tasks
-    .filter((t) => !t.completed && (t.due_date <= day || t.priority === "high"))
+    .filter(
+      (t) =>
+        retainedTasks.has(t.id) ||
+        (!t.completed && (t.due_date <= day || t.priority === "high")),
+    )
     .sort(
       (a, b) =>
         a.due_date.localeCompare(b.due_date) ||
@@ -108,7 +134,7 @@ export function Home({
                   key={t.id}
                   task={t}
                   edit={() => open({ kind: "tasks", record: t })}
-                  toggle={() => toggle(t)}
+                  toggle={() => void completeInFocus(t)}
                 />
               ))
             ) : (

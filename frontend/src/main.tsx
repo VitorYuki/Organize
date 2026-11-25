@@ -5,7 +5,7 @@ import "./style.css";
 import { api, message } from "./api";
 import { Auth } from "./Auth";
 import { Workspace } from "./Workspace";
-import { Logo } from "./ui";
+import { Logo, Startup } from "./ui";
 import type { Theme, User } from "./types";
 type Session = { user: User | null; demo_enabled: boolean };
 function storedTheme(): Theme {
@@ -36,6 +36,7 @@ function App() {
     setTheme(u.theme);
   }, []);
   const session = useCallback(async () => {
+    setLoading(true);
     setFailure("");
     try {
       const { user: u, demo_enabled } = await api<Session>("auth/session/");
@@ -203,19 +204,15 @@ function App() {
           </button>
         </div>
       )}
-      {loading || failure ? (
+      {loading && !failure ? (
+        <Startup />
+      ) : failure ? (
         <main className="boot">
           <Logo />
-          {failure ? (
-            <>
-              <p role="alert">{failure}</p>
-              <button className="primary" onClick={() => void session()}>
-                Tentar novamente
-              </button>
-            </>
-          ) : (
-            <p role="status">Abrindo seu espaço…</p>
-          )}
+          <p role="alert">{failure}</p>
+          <button className="primary" onClick={() => void session()}>
+            Tentar novamente
+          </button>
         </main>
       ) : user && !creatingAccount ? (
         <Workspace
