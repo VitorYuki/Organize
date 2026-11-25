@@ -10,6 +10,11 @@ from rest_framework.response import Response
 from rest_framework.throttling import ScopedRateThrottle
 from rest_framework.views import APIView
 
+from custom_lists.views import ListViewSet
+from events.views import EventViewSet
+from notes.views import NoteViewSet
+from tasks.views import TaskViewSet
+
 from .demo import create_guest, reset_guest
 from .models import User
 from .serializers import (
@@ -51,7 +56,20 @@ class SessionView(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request):
-        return account(request.user, demo_enabled=settings.ORGANIZE_DEMO_ENABLED)
+        details = {"demo_enabled": settings.ORGANIZE_DEMO_ENABLED}
+        if request.user.is_authenticated and request.query_params.get("workspace") == "1":
+            details["records"] = {
+                name: view.serializer_class(
+                    view.queryset.filter(owner=request.user), many=True
+                ).data
+                for name, view in (
+                    ("tasks", TaskViewSet),
+                    ("events", EventViewSet),
+                    ("notes", NoteViewSet),
+                    ("lists", ListViewSet),
+                )
+            }
+        return account(request.user, **details)
 
 
 @method_decorator(csrf_protect, name="dispatch")

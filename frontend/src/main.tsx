@@ -6,8 +6,8 @@ import { api, message } from "./api";
 import { Auth } from "./Auth";
 import { Workspace } from "./Workspace";
 import { Logo, Startup } from "./ui";
-import type { Theme, User } from "./types";
-type Session = { user: User | null; demo_enabled: boolean };
+import type { Records, Theme, User } from "./types";
+type Session = { user: User | null; demo_enabled: boolean; records?: Records };
 function storedTheme(): Theme {
   try {
     const v = localStorage.getItem("organize-theme");
@@ -18,6 +18,7 @@ function storedTheme(): Theme {
 }
 function App() {
   const [user, setUser] = useState<User | null>(null),
+    [initialWorkspace, setInitialWorkspace] = useState<{ user: User; records: Records }>(),
     [demoEnabled, setDemoEnabled] = useState(false),
     [creatingAccount, setCreatingAccount] = useState(false),
     [loading, setLoading] = useState(true),
@@ -39,7 +40,10 @@ function App() {
     setLoading(true);
     setFailure("");
     try {
-      const { user: u, demo_enabled } = await api<Session>("auth/session/");
+      const { user: u, demo_enabled, records } = await api<Session>(
+        "auth/session/?workspace=1",
+      );
+      setInitialWorkspace(u && records ? { user: u, records } : undefined);
       setDemoEnabled(demo_enabled);
       if (u) updateUser(u);
       else setUser(null);
@@ -165,6 +169,7 @@ function App() {
     timer.current = setTimeout(() => setToast(""), 3100);
   }
   const login = (u: User) => {
+    setInitialWorkspace(undefined);
     location.hash = "home";
     setNotice("");
     setCreatingAccount(false);
@@ -173,6 +178,7 @@ function App() {
   };
   async function logout() {
     await api("auth/logout/", "POST", undefined, userId);
+    setInitialWorkspace(undefined);
     setUser(null);
     setNotice("");
     setToast("");
@@ -218,6 +224,7 @@ function App() {
         <Workspace
           key={user.id}
           user={user}
+          initialData={initialWorkspace?.user.id === user.id ? initialWorkspace.records : undefined}
           updateUser={updateUser}
           logout={logout}
           notify={notify}

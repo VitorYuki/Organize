@@ -63,24 +63,29 @@ function merge<T extends { id: number }>(
 }
 export function Workspace({
   user,
+  initialData,
   updateUser,
   logout,
   notify,
   createAccount,
 }: {
   user: User;
+  initialData?: Records;
   updateUser: (u: User) => void;
   logout: () => Promise<void>;
   notify: (t: string) => void;
   createAccount: () => void;
 }) {
   const [route, setRoute] = useState(getRoute),
-    [data, setData] = useState<Records | null>(null),
+    [data, setData] = useState<Records | null>(initialData ?? null),
+    [pendingTasks, setPendingTasks] = useState<ReadonlyMap<number, boolean>>(
+      () => new Map(),
+    ),
     [error, setError] = useState(""),
     [editor, setEditor] = useState<EditState | null>(null),
     version = useRef(0),
     alive = useRef(true),
-    toggling = useRef(new Set<number>());
+    toggling = useRef(new Map<number, boolean>());
   const { page, listId } = route;
   const load = useCallback(async () => {
     const current = ++version.current;
@@ -106,7 +111,7 @@ export function Workspace({
   }
   useEffect(() => {
     alive.current = true;
-    void load();
+    if (!initialData) void load();
     function refresh() {
       if (document.visibilityState === "visible") void load();
     }
@@ -118,7 +123,7 @@ export function Workspace({
       document.removeEventListener("visibilitychange", refresh);
       window.removeEventListener("online", refresh);
     };
-  }, [load]);
+  }, [initialData, load]);
   useEffect(() => {
     function routeChanged() {
       setRoute(getRoute());
@@ -144,7 +149,16 @@ export function Workspace({
           b.updated_at.localeCompare(a.updated_at),
       )
     : [];
-  const display = data ? { ...data, notes: sortedNotes } : null;
+  const display = data
+    ? {
+        ...data,
+        notes: sortedNotes,
+        tasks: data.tasks.map((task) => {
+          const completed = pendingTasks.get(task.id);
+          return completed === undefined ? task : { ...task, completed };
+        }),
+      }
+    : null;
   const save: Save = async (path, method, body) => {
     const result = await api<unknown>(path, method, body, user.id);
     version.current++;
@@ -198,13 +212,16 @@ export function Workspace({
   };
   const toggle = async (t: Task) => {
     if (toggling.current.has(t.id)) return;
-    toggling.current.add(t.id);
+    const completed = !t.completed;
+    toggling.current.set(t.id, completed);
+    setPendingTasks(new Map(toggling.current));
     try {
-      await save("tasks/" + t.id + "/", "PATCH", { completed: !t.completed });
+      await save("tasks/" + t.id + "/", "PATCH", { completed });
     } catch (err) {
       notify(message(err));
     } finally {
       toggling.current.delete(t.id);
+      setPendingTasks(new Map(toggling.current));
     }
   };
   const selected = display?.lists.find((l) => l.id === listId);
