@@ -35,3 +35,9 @@ Os comandos de execução estão no [README](README.md), e a matriz e as evidên
 - A barra móvel mantém as quatro abas, usa uma superfície sólida quando o navegador não oferece desfoque e respeita as áreas seguras. Os formulários usam controles nativos e diálogos com foco restaurado ao fechar. [Diretrizes da Apple para barras de abas](https://developer.apple.com/design/human-interface-guidelines/tab-bars)
 - A página offline recebeu a nova paleta. O aviso de atualização passou a exigir uma versão em espera além da versão ativa, para que a primeira instalação não exiba um aviso indevido.
 - A compilação de produção, o lint, os quatro testes unitários e os 36 cenários Playwright passaram. A revisão incluiu capturas em claro e escuro, retrato e paisagem, verificações de contraste com axe e os alvos de 44 px da navegação e do calendário a 320 px. A validação em aparelhos físicos continua pendente.
+
+## Revisão de composição e navegação
+
+- A Home reúne progresso e atalhos em uma superfície e organiza tarefas, agenda, anotações e listas em grupos com cabeçalhos externos. Hoje separa os filtros dos registros. No desktop, Hoje e Ajustes usam colunas próprias para acomodar conteúdo e ações relacionadas.
+- A barra inferior ganhou um indicador deslizante. Os diálogos mantêm as ações visíveis durante a rolagem. A translucidez tem alternativa opaca e o movimento segue a preferência do sistema.
+- Passaram 54 cenários Playwright e quatro testes unitários, além do lint e da compilação. Foram revisadas capturas nos perfis iPhone, Android e desktop, com os temas claro e escuro. A instalação da PWA e o teclado virtual ainda dependem de dispositivos físicos.
