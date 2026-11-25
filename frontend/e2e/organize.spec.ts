@@ -33,13 +33,15 @@ async function capture(page: Page, info: TestInfo, name: string) {
 }
 
 async function hasNoOverflow(page: Page) {
-  expect(
-    await page.evaluate(
-      () =>
-        document.documentElement.scrollWidth -
-        document.documentElement.clientWidth,
-    ),
-  ).toBeLessThanOrEqual(1);
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () =>
+          document.documentElement.scrollWidth -
+          document.documentElement.clientWidth,
+      ),
+    )
+    .toBeLessThanOrEqual(1);
 }
 
 async function accessibility(page: Page, screen: string) {
@@ -48,7 +50,10 @@ async function accessibility(page: Page, screen: string) {
     .analyze();
   const issues = result.violations.map(({ id, nodes }) => ({
     id,
-    elements: nodes.map(({ target }) => target),
+    elements: nodes.map(({ target, failureSummary }) => ({
+      target,
+      failureSummary,
+    })),
   }));
   expect(issues, `Acessibilidade em ${screen}`).toEqual([]);
 }
@@ -103,6 +108,19 @@ test("conta, agenda, anotações, listas e preferências", async ({
   await expect(
     page.getByText("Ideias da semana", { exact: true }),
   ).toBeVisible();
+  await page
+    .getByRole("region", { name: "Anotações" })
+    .getByRole("button", { name: "Ver todas" })
+    .click();
+  await page
+    .getByRole("searchbox", { name: "Buscar anotações" })
+    .fill("viagem");
+  await expect(
+    page.getByRole("button", { name: /Ideias da semana/ }),
+  ).toBeVisible();
+  await hasNoOverflow(page);
+  await capture(page, info, "anotacoes");
+  await navigate(page, "Home");
   await button(page, "Nova lista").click();
   await dialog.getByLabel("Nome da lista", { exact: true }).fill("Compras");
   await dialog.getByRole("button", { name: "Salvar", exact: true }).click();
@@ -147,8 +165,13 @@ test("conta, agenda, anotações, listas e preferências", async ({
   await page.reload();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
   await navigate(page, "Home");
+  await expect(button(page, "Nova tarefa")).toBeVisible();
+  await hasNoOverflow(page);
+  await accessibility(page, "Home escura");
   await capture(page, info, "home-escura");
   await navigate(page, "Ajustes");
+  await hasNoOverflow(page);
+  await accessibility(page, "Ajustes e perfil escuros");
   await capture(page, info, "ajustes-escuros");
   await button(page, "Claro").click();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
@@ -175,6 +198,18 @@ test("orientação, formulários, navegação e acessibilidade", async ({
   await hasNoOverflow(page);
   await capture(page, info, "login");
   await accessibility(page, "login");
+  await button(page, "Usar tema escuro").click();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  await accessibility(page, "login escuro");
+  await capture(page, info, "login-escuro");
+  await button(page, "Usar tema claro").click();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+  await button(page, "Criar conta").click();
+  await expect(
+    page.getByRole("heading", { name: "Crie sua conta" }),
+  ).toBeVisible();
+  await hasNoOverflow(page);
+  await capture(page, info, "cadastro");
   await register(page, email());
   const navItem = page
     .getByRole("navigation")
@@ -198,7 +233,8 @@ test("orientação, formulários, navegação e acessibilidade", async ({
     expect(Math.min(bounds.width, bounds.height)).toBeGreaterThanOrEqual(44);
   }
   await accessibility(page, "home");
-  await button(page, "Nova tarefa").click();
+  await button(page, "Nova tarefa").focus();
+  await page.keyboard.press("Enter");
   const dialog = page.getByRole("dialog");
   await expect(dialog).toBeVisible();
   await dialog.getByLabel("Título", { exact: true }).focus();
@@ -207,6 +243,7 @@ test("orientação, formulários, navegação e acessibilidade", async ({
   await capture(page, info, "formulario");
   await page.keyboard.press("Escape");
   await expect(dialog).toBeHidden();
+  await expect(button(page, "Nova tarefa")).toBeFocused();
   const size = page.viewportSize()!;
   if (size.height > size.width) {
     await page.setViewportSize({ width: size.height, height: size.width });
@@ -215,6 +252,23 @@ test("orientação, formulários, navegação e acessibilidade", async ({
   await hasNoOverflow(page);
   await capture(page, info, "paisagem");
   await accessibility(page, "calendário");
+  if (info.project.name === "compacto") {
+    await page.setViewportSize({ width: 320, height: 720 });
+    await hasNoOverflow(page);
+    await expect.poll(() => page.evaluate(() => window.innerWidth)).toBe(320);
+    await expect
+      .poll(() =>
+        page.locator(".bottom-nav a, .month-day").evaluateAll((nodes) =>
+          Math.min(
+            ...nodes.map((node) => {
+              const { width, height } = node.getBoundingClientRect();
+              return Math.min(width, height);
+            }),
+          ),
+        ),
+      )
+      .toBeGreaterThanOrEqual(44);
+  }
 });
 
 test("falhas de credenciais e validação preservam o formulário", async ({
@@ -262,6 +316,7 @@ test("PWA oferece instalação e página offline sem cache privado", async ({
   await expect
     .poll(() => page.evaluate(() => !!navigator.serviceWorker.controller))
     .toBeTruthy();
+  await expect(button(page, "Atualizar")).toHaveCount(0);
   const cached = await page.evaluate(async () => {
     const urls: string[] = [];
     for (const name of await caches.keys()) {
